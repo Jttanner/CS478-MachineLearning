@@ -14,7 +14,9 @@ import random
 import argparse
 import time
 
-
+# USAGE
+# from toolkit directoryL
+# python manager.py -L baseline -A datasets/iris.arff -E training
 class MLSystemManager:
 
     def get_learner(self, model):
