@@ -11,7 +11,7 @@ class Perceptron():
     type = 0
     labels = []
     weights = []
-    learningRate = .4
+    learningRate = .1
 
     # deltaw = c(t-z)x
     # c=learning rate
@@ -19,9 +19,8 @@ class Perceptron():
     # z=output
     # x=input
     def updateWeights(self, learningRate, target, output, input):
-        if output > 0:
-            for i in range(self.weights):
-                self.weight[i] += learningRate * (target - output) * input[i]
+        for i in range(0, len(self.weights)):
+            self.weights[i] += learningRate * (target - output) * input[i]
 
 
     def computeNet(self, input):
@@ -44,25 +43,32 @@ class Perceptron():
         """
         self.labels = []
 
-
-        for i in range(features.rows):
-            inputWithBias = features.row(i)
-            inputWithBias.append(1)
-            net = self.computeNet(inputWithBias)
-            output = self.computeOutput(net)
-            self.updateWeights(self.learningRate, 1 if labels.row(i) == self.type else 0, output, inputWithBias)
+        hasUpdated = True
+        while hasUpdated :
+            oldweights = self.weights
+            hasUpdated = 0
+            for i in range(features.rows):
+                inputWithBias = features.row(i)
+                inputWithBias.append(1)
+                net = self.computeNet(inputWithBias)
+                output = self.computeOutput(net)
+                testA = labels.row(i)[0]
+                testB = self.type
+                testC = 1 if labels.row(i)[0] else 0
+                self.updateWeights(self.learningRate, 1 if labels.row(i)[0] == self.type else 0, output, inputWithBias)
+                if oldweights == self.weights:
+                    hasUpdate = False
 
     def predict(self, features, labels):
         """
         :type features: [float]
         :type labels: [float]
         """
-        for i in range(features.rows):
-            inputWithBias = features.row(i)
-            inputWithBias.append(1)
-            net = self.computeNet(inputWithBias)
-            output = self.computeOutput(net)
-            if output > 0:
-                labels[i] = 1
-            else:
-                labels[i] = 0
+        net = self.computeNet(features)
+        output = self.computeOutput(net)
+        if output > 0:
+            self.labels.append(0);
+        #    return 1
+        else:
+            self.labels.append(1);
+        #    return 0

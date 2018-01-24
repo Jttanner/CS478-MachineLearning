@@ -42,6 +42,15 @@ class Matrix:
     dataset_name = "Untitled"
     MISSING = float("infinity")
 
+    def __eq__(self, other):
+        isEqual = True
+        for i in range(0, len(self.data)):
+            if self.data[i] != other.data[i]:
+                isEqual = False
+        if isEqual == 1:
+            return isEqual
+
+
     def __init__(self, matrix=None, row_start=None, col_start=None, row_count=None, col_count=None, arff=None):
         """
         If matrix is provided, all parameters must be provided, and the new matrix will be
