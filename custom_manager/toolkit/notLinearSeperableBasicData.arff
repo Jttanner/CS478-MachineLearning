@@ -1,0 +1,18 @@
+@RELATION basic
+
+@ATTRIBUTE first	Continuous
+@ATTRIBUTE second 	Continuous
+@ATTRIBUTE class 	{red,blue}
+
+@DATA
+-.1,-.2,red
+.2,.3,red
+-.3,-.4,red
+.3,.4,red
+.8,.8,blue
+-.12,-.23,blue
+.7,.43,blue
+-.4,-.5,blue
+%
+%
+%
