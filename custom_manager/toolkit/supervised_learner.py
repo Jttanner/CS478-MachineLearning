@@ -1,5 +1,8 @@
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+
 from matrix import Matrix
 import math
 
@@ -26,6 +29,32 @@ class SupervisedLearner:
         :type labels: [float]
         """
         raise NotImplementedError
+
+    def plotBinaryResults(self, features, labels):
+        xAxisRed = []
+        yAxisRed = []
+        xAxisBlue = []
+        yAxisBlue = []
+        for i in range(features.rows):
+            if labels.data[i][0] == 0.0:
+                xAxisRed.append(features.data[i][0])
+                yAxisRed.append(features.data[i][1])
+            else:
+                xAxisBlue.append(features.data[i][0])
+                yAxisBlue.append(features.data[i][0])
+
+        truePlot = plt.plot(xAxisRed, yAxisRed, 'ro')
+        plt.setp(truePlot, 'color', 'r')
+        falsePlot = plt.plot(xAxisBlue, yAxisBlue, 'ro')
+        plt.setp(falsePlot, 'color', 'b')
+        falsePlot[0].color = 'b'
+        plt.xlabel("Happiness")
+        plt.ylabel("Cuteness")
+        catLegend = patches.Patch(color='red', label='Cat')
+        dogLegend = patches.Patch(color='blue', label='Dog')
+        plt.legend(handles=[catLegend, dogLegend])
+        plt.show()
+        return 0
 
     def measure_accuracy(self, features, labels, confusion=None):
         """
@@ -79,6 +108,8 @@ class SupervisedLearner:
                     confusion.set(targ, pred, confusion.get(targ, pred)+1)
                 if pred == targ:
                     correct_count += 1
+
+            self.plotBinaryResults(features, labels)
 
             return correct_count / features.rows
 

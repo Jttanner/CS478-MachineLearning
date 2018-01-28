@@ -1,18 +1,18 @@
 @RELATION basic
 
-@ATTRIBUTE first	Continuous
-@ATTRIBUTE second 	Continuous
-@ATTRIBUTE class 	{red,blue}
+@ATTRIBUTE happy	Continuous
+@ATTRIBUTE cute 	Continuous
+@ATTRIBUTE class 	{cat,dog}
 
 @DATA
--.1,-.2,red
--.2,-.3,red
--.3,-.4,red
--.3,-.4,red
-.1,.2,blue
-.2,.3,blue
-.3,.4,blue
-.4,.5,blue
+-.1,-.2,cat
+-.2,-.3,cat
+-.3,-.4,cat
+-.4,-.5,cat
+.9,.2,dog
+.2,.3,dog
+.3,.4,dog
+.4,.5,dog
 %
 %
 %

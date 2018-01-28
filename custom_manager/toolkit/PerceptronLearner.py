@@ -5,9 +5,6 @@ from matrix import Matrix
 from Perceptron import Perceptron
 
 class PerceptronLearner(SupervisedLearner):
-    #setosaPerceptron = Perceptron(0.0, 4)
-    #versicolorPerceptron = Perceptron(1.0, 4)
-    #virginicaPerceptron = Perceptron(2.0, 4)
 
     perceptronList = []
 
@@ -39,9 +36,10 @@ class PerceptronLearner(SupervisedLearner):
 
         for i in range(0, len(self.perceptronList)):
             if self.perceptronList[i].labels[0] == 1:
-                labels.append(1)
+                labels.append(self.perceptronList[i].type)
             else:
-                labels.append(0)
+                if not len(self.perceptronList) > 1:
+                    labels.append(0)
 
         #if self.setosaPerceptron.labels[0] == 1:
         #    labels.append(0.0)

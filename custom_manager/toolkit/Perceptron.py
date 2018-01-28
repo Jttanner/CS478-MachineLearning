@@ -40,9 +40,14 @@ class Perceptron():
         for i in range(0, len(original)):
             destination.append(original[i])
 
+    def checkAccuracyForMeaningfulUpdate(self, accuracy, oldAccuracy):
+        if (accuracy == oldAccuracy + .1 or accuracy == oldAccuracy -.1):
+            return True
+        else:
+            return False
 
     def checkMeaningfulUpdate(self, weights, oldWeights, iterations):
-        if iterations > 200: #TODO: test/change this.
+        if iterations > 200: #TODO: test/change this.  Have it check for change in accuracy
             return False
         elif weights == oldWeights:
             return False
@@ -64,8 +69,12 @@ class Perceptron():
 
         hasUpdated = True
         iterations = 0
+        accuracy = 0
+        oldAccuracy = 0
         while hasUpdated :
             oldWeights = []
+            total = len(labels)
+            correct = 0
             self.copyList(self.weights, oldWeights)
             for i in range(features.rows):
                 inputWithBias = []
@@ -74,7 +83,11 @@ class Perceptron():
                 net = self.computeNet(inputWithBias)
                 output = self.computeOutput(net)
                 self.updateWeights(self.learningRate, 1 if labels.row(i)[0] == self.type else 0, output, inputWithBias)
+                oldAccuracy = accuracy
+                accuracy = total/correct
+
             hasUpdated = self.checkMeaningfulUpdate(self.weights, oldWeights, iterations) #TODO make better way to check this using accuracy
+
             iterations += 1
         print("number of epochs: " + str(iterations))
 
