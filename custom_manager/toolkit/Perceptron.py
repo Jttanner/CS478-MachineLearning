@@ -12,6 +12,9 @@ class Perceptron():
     labels = []
     weights = []
     learningRate = .1
+    epochs = 0
+    epochsWithoutChange = 0
+    NUMBER_OF_EPOCHS_WITHOUT_CHANGE_TO_STOP = 5
 
     # deltaw = c(t-z)x
     # c=learning rate
@@ -41,24 +44,30 @@ class Perceptron():
             destination.append(original[i])
 
     def checkAccuracyForMeaningfulUpdate(self, accuracy, oldAccuracy):
-        if (accuracy == oldAccuracy + .1 or accuracy == oldAccuracy -.1):
-            return True
-        else:
-            return False
-
-    def checkMeaningfulUpdate(self, weights, oldWeights, iterations):
-        if iterations > 200: #TODO: test/change this.  Have it check for change in accuracy
-            return False
-        elif weights == oldWeights:
-            return False
-        else:
-            changeAmount = 0
-            for i in range(0, len(weights)):
-                changeAmount += abs(weights[i] - oldWeights[i])
-            if changeAmount < .01:
+        if (accuracy < oldAccuracy + .01 and accuracy > oldAccuracy -.01):
+            self.epochsWithoutChange += 1
+            if self.epochsWithoutChange > self.NUMBER_OF_EPOCHS_WITHOUT_CHANGE_TO_STOP:
                 return False
             else:
                 return True
+        else:
+            self.epochsWithoutChange = 0
+            return True
+
+
+#    def checkMeaningfulUpdate(self, weights, oldWeights, iterations):
+#        if iterations > 200: #TODO: test/change this.  Have it check for change in accuracy
+#            return False
+#        elif weights == oldWeights:
+#            return False
+#       else:
+#           changeAmount = 0
+#            for i in range(0, len(weights)):
+#                changeAmount += abs(weights[i] - oldWeights[i])
+#            if changeAmount < .01:
+#                return False
+#            else:
+#                return True
 
     def train(self, features, labels):
         """
@@ -68,12 +77,11 @@ class Perceptron():
         self.labels = []
 
         hasUpdated = True
-        iterations = 0
         accuracy = 0
         oldAccuracy = 0
         while hasUpdated :
             oldWeights = []
-            total = len(labels)
+            total = labels.rows
             correct = 0
             self.copyList(self.weights, oldWeights)
             for i in range(features.rows):
@@ -83,13 +91,14 @@ class Perceptron():
                 net = self.computeNet(inputWithBias)
                 output = self.computeOutput(net)
                 self.updateWeights(self.learningRate, 1 if labels.row(i)[0] == self.type else 0, output, inputWithBias)
-                oldAccuracy = accuracy
-                accuracy = total/correct
-
-            hasUpdated = self.checkMeaningfulUpdate(self.weights, oldWeights, iterations) #TODO make better way to check this using accuracy
-
-            iterations += 1
-        print("number of epochs: " + str(iterations))
+                if labels.row(i)[0] == self.type:
+                    if output == 1:
+                        correct += 1
+            oldAccuracy = accuracy
+            accuracy = correct / total
+            hasUpdated = self.checkAccuracyForMeaningfulUpdate(accuracy, oldAccuracy)
+            self.epochs += 1
+        print("number of epochs: " + str(self.epochs))
 
     def predict(self, features, labels):
         """
