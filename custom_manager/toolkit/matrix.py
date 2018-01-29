@@ -239,6 +239,20 @@ class Matrix:
         a = np.ma.masked_equal(self.col(col), self.MISSING).compressed()
         return np.max(a)
 
+    def relative_max(self, n, m):
+        max = self.row(0)[m]
+        for i in range(self.row(n)):
+            if self.row(i)[m] > max:
+                max = self.row(i)[m]
+        return max
+
+    def relative_min(self, n, m):
+        min = self.row(0)[m]
+        for i in range(self.row(n)):
+            if self.row(i)[m] < min:
+                min = self.row(i)[m]
+        return min
+
     def most_common_value(self, col):
         """Get the most common value in the specified column"""
         a = np.ma.masked_equal(self.col(col), self.MISSING).compressed()
@@ -279,3 +293,5 @@ class Matrix:
             # values = list(map(lambda j: str(r[j]) if self.value_count(j) == 0 else self.enum_to_str[j][r[j]],
             #                   range(len(r))))
             print("{}".format(", ".join(values)))
+
+

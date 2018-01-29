@@ -4,6 +4,8 @@ from supervised_learner import SupervisedLearner
 from matrix import Matrix
 from Perceptron import Perceptron
 
+from graphing import MLGraphing as Graph
+
 class PerceptronLearner(SupervisedLearner):
 
     perceptronList = []
@@ -55,3 +57,8 @@ class PerceptronLearner(SupervisedLearner):
         #        labels.append(1.0);
         #    elif (self.virginicaPerceptron.labels[index] == 1):
         #        labels.append(2.0);
+
+    def measure_accuracy(self, features, labels, confusion=None):
+        accuracy = super(PerceptronLearner, self).measure_accuracy(features, labels)
+        Graph.plotBinaryResults(Graph, features, labels, self.perceptronList[0].weights)
+        return accuracy

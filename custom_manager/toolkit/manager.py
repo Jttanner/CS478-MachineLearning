@@ -10,7 +10,8 @@ from baseline_learner import BaselineLearner
 from matrix import Matrix
 from PerceptronLearner import PerceptronLearner
 
-
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
 import random
 import argparse
@@ -20,6 +21,32 @@ import time
 # from toolkit directoryL
 # python manager.py -L baseline -A datasets/iris.arff -E training
 class MLSystemManager:
+
+    def plotBinaryResults(self, features, labels):
+        xAxisRed = []
+        yAxisRed = []
+        xAxisBlue = []
+        yAxisBlue = []
+        for i in range(features.rows):
+            if labels.data[i][0] == 0.0:
+                xAxisRed.append(features.data[i][0])
+                yAxisRed.append(features.data[i][1])
+            else:
+                xAxisBlue.append(features.data[i][0])
+                yAxisBlue.append(features.data[i][0])
+
+        truePlot = plt.plot(xAxisRed, yAxisRed, 'ro')
+        plt.setp(truePlot, 'color', 'r')
+        falsePlot = plt.plot(xAxisBlue, yAxisBlue, 'ro')
+        plt.setp(falsePlot, 'color', 'b')
+        falsePlot[0].color = 'b'
+        plt.xlabel("Happiness")
+        plt.ylabel("Cuteness")
+        catLegend = patches.Patch(color='red', label='Cat')
+        dogLegend = patches.Patch(color='blue', label='Dog')
+        plt.legend(handles=[catLegend, dogLegend])
+        plt.show()
+        return 0
 
     def get_learner(self, model):
         """

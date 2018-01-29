@@ -43,8 +43,10 @@ class Perceptron():
         for i in range(0, len(original)):
             destination.append(original[i])
 
-    def checkAccuracyForMeaningfulUpdate(self, accuracy, oldAccuracy):
-        if (accuracy < oldAccuracy + .01 and accuracy > oldAccuracy -.01):
+
+
+    def checkAccuracyForMeaningfulUpdate(self, accuracy, oldAccuracy, weights, oldWeights):
+        if (accuracy < oldAccuracy + .00001 and accuracy > oldAccuracy -.00001):
             self.epochsWithoutChange += 1
             if self.epochsWithoutChange > self.NUMBER_OF_EPOCHS_WITHOUT_CHANGE_TO_STOP:
                 return False
@@ -56,12 +58,12 @@ class Perceptron():
 
 
 #    def checkMeaningfulUpdate(self, weights, oldWeights, iterations):
-#        if iterations > 200: #TODO: test/change this.  Have it check for change in accuracy
+#        if iterations > 200:
 #            return False
 #        elif weights == oldWeights:
 #            return False
-#       else:
-#           changeAmount = 0
+#        else:
+#            changeAmount = 0
 #            for i in range(0, len(weights)):
 #                changeAmount += abs(weights[i] - oldWeights[i])
 #            if changeAmount < .01:
@@ -96,7 +98,8 @@ class Perceptron():
                         correct += 1
             oldAccuracy = accuracy
             accuracy = correct / total
-            hasUpdated = self.checkAccuracyForMeaningfulUpdate(accuracy, oldAccuracy)
+            hasUpdated = self.checkAccuracyForMeaningfulUpdate(accuracy, oldAccuracy, self.weights, oldWeights)
+            #hasUpdated = self.checkMeaningfulUpdate(self.weights, oldWeights, self.epochs)
             self.epochs += 1
         print("number of epochs: " + str(self.epochs))
 
@@ -115,3 +118,5 @@ class Perceptron():
             self.labels.append(1);
         else:
             self.labels.append(0);
+
+
