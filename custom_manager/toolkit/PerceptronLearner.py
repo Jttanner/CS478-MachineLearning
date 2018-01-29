@@ -26,9 +26,6 @@ class PerceptronLearner(SupervisedLearner):
         #self.perceptronList.append(virginicaPerceptron)
 
     def train(self, features, labels):
-
-        
-
         for i in range(0,len(self.perceptronList)):
             self.perceptronList[i].train(features, labels)
 

@@ -105,6 +105,23 @@ class MLSystemManager:
 
             features = Matrix(data, 0, 0, data.rows, data.cols-1)
             labels = Matrix(data, 0, data.cols-1, data.rows, 1)
+
+            features.shuffle(labels)
+
+            split70Length = int(features.rows * .70)
+            split30Length = int(features.rows * .30)
+
+
+            partitionedFeatures_Training = Matrix()
+            partitionedFeatures_Training.init_from(features, 0, 0, split70Length, features.cols)
+            partitionedLabels_Training = Matrix()
+            partitionedLabels_Training.init_from(labels, 0, 0, split70Length, labels.cols)
+
+            partitionedFeatures_Test = Matrix()
+            partitionedFeatures_Test.init_from(features, split70Length, 0, split30Length, features.cols)
+            partitionedLabels_Test = Matrix()
+            partitionedLabels_Test.init_from(labels, split70Length, 0, split30Length, features.cols)
+
             confusion = Matrix()
             start_time = time.time()
             learner.train(features, labels)

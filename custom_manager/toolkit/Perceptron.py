@@ -27,11 +27,10 @@ class Perceptron():
 
 
     def computeNet(self, input):
-        #input.append(1)
         sum = 0
         for i in range(0,len(input)):
             sum += input[i] * self.weights[i]
-        return sum;
+        return sum
 
     def computeOutput(self, sum):
         if (sum > 0):
@@ -82,6 +81,8 @@ class Perceptron():
         accuracy = 0
         oldAccuracy = 0
         while hasUpdated :
+            features.shuffle
+            labels.shuffle
             oldWeights = []
             total = labels.rows
             correct = 0
