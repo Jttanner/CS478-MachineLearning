@@ -41,6 +41,7 @@ class MLGraphing:
         x = numpy.arange(-2, 2)
         y = bias/w2 - (w1/w2)*x
         plt.plot(x,y)
+        plt.axis([-2, 2, -2, 2])
 
     def calculateLinearRegressionLineInfo(self, features):
         info = []
