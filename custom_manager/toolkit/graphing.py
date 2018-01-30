@@ -2,6 +2,7 @@ from matrix import Matrix
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy
+import csv
 
 class MLGraphing:
 
@@ -71,4 +72,44 @@ class MLGraphing:
         max = Matrix.column_max(features, 1)
         plt.plot(x, y)
 
+    def plotMisclassificationRate(self, accuracyAtEachEpoch, epochs):
+        if len(accuracyAtEachEpoch) != epochs:
+            print("Number of epochs and lengths of accuracy array must match")
+            return
+        x = numpy.arange(0, epochs)
+        y = []
+        for i in range(len(accuracyAtEachEpoch)):
+            y.append(1 - accuracyAtEachEpoch[i])
+        missClassPlot = plt.plot(x, y)
+        plt.xlabel("Epoch")
+        plt.ylabel("Average Misclassification Rate")
+        plt.axis([0, epochs, 0, .2])
+        plt.show()
+        f = open('runInfo5.csv', 'w')
+        with f:
+            writer = csv.writer(f)
+            writer.writerows([accuracyAtEachEpoch])
+
+    def plotAverageMisclassificationRate(self):
+        print('yay')
+
+accuracyAtEachEpoch = []
+
+with open('runinfo.csv', newline='') as f1:
+    with open('runinfo.csv', newline='') as f2:
+        with open('runinfo.csv', newline='') as f3:
+            with open('runinfo.csv', newline='') as f4:
+                with open('runinfo.csv', newline='') as f5:
+                    reader1 = csv.reader(f1)
+                    reader2 = csv.reader(f2)
+                    reader3 = csv.reader(f3)
+                    reader4 = csv.reader(f4)
+                    reader5 = csv.reader(f5)
+                    for row1 in reader1:
+                        for row2 in reader2:
+                            for row3 in reader3:
+                                for row4 in reader4:
+                                    for row5 in reader5:
+                                        accuracyAtEachEpoch.append(sum(row1, row2, row3, row4, row5)/5)
+epochs = len(accuracyAtEachEpoch)
 

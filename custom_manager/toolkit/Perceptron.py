@@ -14,6 +14,7 @@ class Perceptron():
     learningRate = .1
     epochs = 0
     epochsWithoutChange = 0
+    accuracyAtEachEpoch = []
     NUMBER_OF_EPOCHS_WITHOUT_CHANGE_TO_STOP = 5
 
     # deltaw = c(t-z)x
@@ -102,7 +103,9 @@ class Perceptron():
                         correct += 1
             oldAccuracy = accuracy
             accuracy = correct / total
+            self.accuracyAtEachEpoch.append(accuracy)
             hasUpdated = self.checkAccuracyForMeaningfulUpdate(accuracy, oldAccuracy, self.weights, oldWeights)
+            #hasUpdated = False
             #hasUpdated = self.checkMeaningfulUpdate(self.weights, oldWeights, self.epochs)
             self.epochs += 1
         print("number of epochs: " + str(self.epochs))

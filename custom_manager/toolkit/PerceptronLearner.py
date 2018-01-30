@@ -65,4 +65,6 @@ class PerceptronLearner(SupervisedLearner):
     def measure_accuracy(self, features, labels, confusion=None):
         accuracy = super(PerceptronLearner, self).measure_accuracy(features, labels)
         #Graph.plotBinaryResults(Graph, features, labels, self.perceptronList[0].weights)
+        #print(self.perceptronList[0].weights)
+        Graph.plotMisclassificationRate(self, self.perceptronList[0].accuracyAtEachEpoch, self.perceptronList[0].epochs);
         return accuracy
