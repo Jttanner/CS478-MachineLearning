@@ -126,17 +126,17 @@ def localMissclassGraph():
                                 break
                             break
 
-    for i in range(0,2000):
-        if i < 615:
+    for i in range(0,106):
+        if i < 27:
             accuracyAtEachEpoch.append((float(r1[i]) + float(r2[i]) + float(r3[i]) + float(r4[i]) + float(r5[i])) / 5)
-        elif i < 887:
-            accuracyAtEachEpoch.append((float(r1[i]) + float(r2[i]) + float(r3[i]) + float(r4[i]))/4)
-        elif i < 920:
-            accuracyAtEachEpoch.append((float(r1[i]) + float(r2[i]) + float(r3[i])) / 3)
-        elif i < 956:
-            accuracyAtEachEpoch.append((float(r1[i]) + float(r2[i])) / 2)
-        elif i < 2000:
-            accuracyAtEachEpoch.append(float(r2[i]))
+        elif i < 64:
+            accuracyAtEachEpoch.append((float(r1[i]) + float(r3[i]) + float(r4[i]) + float(r5[i]))/4)
+        elif i < 72:
+            accuracyAtEachEpoch.append((float(r3[i]) + float(r4[i]) + float(r5[i])) / 3)
+        elif i < 96:
+            accuracyAtEachEpoch.append((float(r4[i]) + float(r5[i])) / 2)
+        elif i < 106:
+            accuracyAtEachEpoch.append(float(r4[i]))
         else:
             break
 
@@ -151,3 +151,5 @@ def localMissclassGraph():
     plt.ylabel("Average Misclassification Rate")
     plt.axis([0, epochs, 0, .2])
     plt.show()
+
+#localMissclassGraph()

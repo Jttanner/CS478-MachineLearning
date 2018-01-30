@@ -11,6 +11,7 @@ class Perceptron():
     type = 0
     labels = []
     weights = []
+    finalNet = 0
     learningRate = .1
     epochs = 0
     epochsWithoutChange = 0
@@ -46,7 +47,9 @@ class Perceptron():
 
 
     def checkAccuracyForMeaningfulUpdate(self, accuracy, oldAccuracy, weights, oldWeights):
-        if (accuracy < oldAccuracy + .0075 and accuracy > oldAccuracy -.0075):
+        if self.epochs > 3000:
+            return False
+        if (accuracy < oldAccuracy + .0075 and accuracy > oldAccuracy - .0075):
             self.epochsWithoutChange += 1
             if self.epochsWithoutChange > self.NUMBER_OF_EPOCHS_WITHOUT_CHANGE_TO_STOP:
                 return False
