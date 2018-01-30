@@ -46,7 +46,7 @@ class Perceptron():
 
 
     def checkAccuracyForMeaningfulUpdate(self, accuracy, oldAccuracy, weights, oldWeights):
-        if (accuracy < oldAccuracy + .005 and accuracy > oldAccuracy -.005):
+        if (accuracy < oldAccuracy + .0075 and accuracy > oldAccuracy -.0075):
             self.epochsWithoutChange += 1
             if self.epochsWithoutChange > self.NUMBER_OF_EPOCHS_WITHOUT_CHANGE_TO_STOP:
                 return False

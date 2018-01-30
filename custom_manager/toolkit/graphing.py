@@ -80,36 +80,74 @@ class MLGraphing:
         y = []
         for i in range(len(accuracyAtEachEpoch)):
             y.append(1 - accuracyAtEachEpoch[i])
-        missClassPlot = plt.plot(x, y)
+        plt.plot(x, y)
         plt.xlabel("Epoch")
         plt.ylabel("Average Misclassification Rate")
         plt.axis([0, epochs, 0, .2])
         plt.show()
-        f = open('runInfo5.csv', 'w')
+        f = open('runInfo6.csv', 'w')
         with f:
             writer = csv.writer(f)
             writer.writerows([accuracyAtEachEpoch])
 
-    def plotAverageMisclassificationRate(self):
-        print('yay')
 
-accuracyAtEachEpoch = []
+def localMissclassGraph():
+    accuracyAtEachEpoch = []
 
-with open('runinfo.csv', newline='') as f1:
-    with open('runinfo.csv', newline='') as f2:
-        with open('runinfo.csv', newline='') as f3:
-            with open('runinfo.csv', newline='') as f4:
-                with open('runinfo.csv', newline='') as f5:
-                    reader1 = csv.reader(f1)
-                    reader2 = csv.reader(f2)
-                    reader3 = csv.reader(f3)
-                    reader4 = csv.reader(f4)
-                    reader5 = csv.reader(f5)
-                    for row1 in reader1:
-                        for row2 in reader2:
-                            for row3 in reader3:
-                                for row4 in reader4:
-                                    for row5 in reader5:
-                                        accuracyAtEachEpoch.append(sum(row1, row2, row3, row4, row5)/5)
-epochs = len(accuracyAtEachEpoch)
+    r1 = []
+    r2 = []
+    r3 = []
+    r4 = []
+    r5 = []
 
+    with open('runinfo.csv', newline='') as f1:
+        with open('runinfo2.csv', newline='') as f2:
+            with open('runinfo3.csv', newline='') as f3:
+                with open('runinfo4.csv', newline='') as f4:
+                    with open('runinfo5.csv', newline='') as f5:
+                        reader1 = csv.reader(f1)
+                        for row1 in reader1:
+                            r1 = row1
+                            reader2 = csv.reader(f2)
+                            for row2 in reader2:
+                                r2 = row2
+                                reader3 = csv.reader(f3)
+                                for row3 in reader3:
+                                    r3 = row3
+                                    reader4 = csv.reader(f4)
+                                    reader5 = csv.reader(f5)
+                                    for row4 in reader4:
+                                        r4 = row4
+                                        for row5 in reader5:
+                                            r5 = row5
+                                            break
+                                        break
+                                    break
+                                break
+                            break
+
+    for i in range(0,2000):
+        if i < 615:
+            accuracyAtEachEpoch.append((float(r1[i]) + float(r2[i]) + float(r3[i]) + float(r4[i]) + float(r5[i])) / 5)
+        elif i < 887:
+            accuracyAtEachEpoch.append((float(r1[i]) + float(r2[i]) + float(r3[i]) + float(r4[i]))/4)
+        elif i < 920:
+            accuracyAtEachEpoch.append((float(r1[i]) + float(r2[i]) + float(r3[i])) / 3)
+        elif i < 956:
+            accuracyAtEachEpoch.append((float(r1[i]) + float(r2[i])) / 2)
+        elif i < 2000:
+            accuracyAtEachEpoch.append(float(r2[i]))
+        else:
+            break
+
+    epochs = len(accuracyAtEachEpoch)
+
+    x = numpy.arange(0, epochs)
+    y = []
+    for i in range(len(accuracyAtEachEpoch)):
+        y.append(1 - accuracyAtEachEpoch[i])
+    plt.plot(x, y)
+    plt.xlabel("Epoch")
+    plt.ylabel("Average Misclassification Rate")
+    plt.axis([0, epochs, 0, .2])
+    plt.show()
