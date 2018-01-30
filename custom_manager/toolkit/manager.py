@@ -124,10 +124,14 @@ class MLSystemManager:
 
             confusion = Matrix()
             start_time = time.time()
-            learner.train(features, labels)
+
+            #learner.train(features, labels)
+            learner.train(partitionedFeatures_Training, partitionedLabels_Training)
+
             elapsed_time = time.time() - start_time
             print("Time to train (in seconds): {}".format(elapsed_time))
-            accuracy = learner.measure_accuracy(features, labels, confusion)
+            #accuracy = learner.measure_accuracy(features, labels, confusion)
+            accuracy = learner.measure_accuracy(partitionedFeatures_Training, partitionedLabels_Training, confusion)
             print("Training set accuracy: " + str(accuracy))
 
             if print_confusion_matrix:

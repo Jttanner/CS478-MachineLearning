@@ -45,7 +45,7 @@ class Perceptron():
 
 
     def checkAccuracyForMeaningfulUpdate(self, accuracy, oldAccuracy, weights, oldWeights):
-        if (accuracy < oldAccuracy + .00001 and accuracy > oldAccuracy -.00001):
+        if (accuracy < oldAccuracy + .005 and accuracy > oldAccuracy -.005):
             self.epochsWithoutChange += 1
             if self.epochsWithoutChange > self.NUMBER_OF_EPOCHS_WITHOUT_CHANGE_TO_STOP:
                 return False
@@ -81,8 +81,8 @@ class Perceptron():
         accuracy = 0
         oldAccuracy = 0
         while hasUpdated :
-            features.shuffle
-            labels.shuffle
+            features.shuffle(labels)
+            #labels.shuffle
             oldWeights = []
             total = labels.rows
             correct = 0
@@ -96,6 +96,9 @@ class Perceptron():
                 self.updateWeights(self.learningRate, 1 if labels.row(i)[0] == self.type else 0, output, inputWithBias)
                 if labels.row(i)[0] == self.type:
                     if output == 1:
+                        correct += 1
+                else:
+                    if output == 0:
                         correct += 1
             oldAccuracy = accuracy
             accuracy = correct / total
