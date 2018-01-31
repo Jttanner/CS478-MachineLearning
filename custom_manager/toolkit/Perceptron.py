@@ -112,6 +112,7 @@ class Perceptron():
             #hasUpdated = self.checkMeaningfulUpdate(self.weights, oldWeights, self.epochs)
             self.epochs += 1
         print("number of epochs: " + str(self.epochs))
+        print("Perceptron Accuracy: " + str(accuracy))
 
     def predict(self, features, labels):
         """

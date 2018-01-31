@@ -85,7 +85,7 @@ class MLGraphing:
         plt.ylabel("Average Misclassification Rate")
         plt.axis([0, epochs, 0, .2])
         plt.show()
-        f = open('runInfo6.csv', 'w')
+        f = open('runInfo7.csv', 'w')
         with f:
             writer = csv.writer(f)
             writer.writerows([accuracyAtEachEpoch])
