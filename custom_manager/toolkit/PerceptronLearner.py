@@ -14,9 +14,9 @@ class PerceptronLearner(SupervisedLearner):
     def __init__(self):
         #votingPerceptron = Perceptron(1.0, 16)
         #self.perceptronList.append(votingPerceptron)
-
-        #smallPerceptron = Perceptron(1.0, 2)
-        #self.perceptronList.append(smallPerceptron)
+        #
+        # smallPerceptron = Perceptron(1.0, 2)
+        # self.perceptronList.append(smallPerceptron)
 
         setosaPerceptron = Perceptron(0.0, 4)
         versicolorPerceptron = Perceptron(1.0, 4)
@@ -40,7 +40,7 @@ class PerceptronLearner(SupervisedLearner):
             self.perceptronList[i].predict(features, labels)
 
 
-        #for i in range(0, len(self.perceptronList)):
+        # for i in range(0, len(self.perceptronList)):
         #    if self.perceptronList[i].labels[0] == 1:
         #        labels.append(self.perceptronList[i].type)
         #    else:

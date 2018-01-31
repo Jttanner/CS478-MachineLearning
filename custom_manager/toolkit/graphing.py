@@ -83,7 +83,7 @@ class MLGraphing:
         plt.plot(x, y)
         plt.xlabel("Epoch")
         plt.ylabel("Average Misclassification Rate")
-        plt.axis([0, epochs, 0, .2])
+        plt.axis([-1, epochs, 0, .2])
         plt.show()
         f = open('runInfo7.csv', 'w')
         with f:
@@ -149,7 +149,7 @@ def localMissclassGraph():
     plt.plot(x, y)
     plt.xlabel("Epoch")
     plt.ylabel("Average Misclassification Rate")
-    plt.axis([0, epochs, 0, .2])
+    plt.axis([-1, epochs, 0, .2])
     plt.show()
 
 #localMissclassGraph()
