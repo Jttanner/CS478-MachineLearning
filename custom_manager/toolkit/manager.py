@@ -9,6 +9,7 @@ from supervised_learner import SupervisedLearner
 from baseline_learner import BaselineLearner
 from matrix import Matrix
 from PerceptronLearner import PerceptronLearner
+from BackpropagationLearner import BackpropagationLearner
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -62,6 +63,7 @@ class MLSystemManager:
         modelmap = {
             "baseline": BaselineLearner(),
             "perceptron": PerceptronLearner(),
+            "backprop": BackpropagationLearner(),
             #"neuralnet": NeuralNetLearner(),
             #"decisiontree": DecisionTreeLearner(),
             #"knn": InstanceBasedLearner()
