@@ -5,11 +5,13 @@ class Node:
     forwardConnections = []
     backConnections = []
     forwardWeights = []
+    hidden = None
 
-    def __init__(self):
+    def __init__(self, hidden):
         self.forwardConnections = []
         self.backConnections = []
         self.forwardWeights = []
+        self.hidden = hidden
 
 
 class OutputNode:
@@ -28,20 +30,19 @@ class BackpropNetwork:
         self.firstNodes = []
         self.outputs = []
         for i in range(len(features)):
-            self.firstNodes.append(Node())
+            self.firstNodes.append(Node(False))
             self.outputs.append(OutputNode())
         nextLayer = self.buildNetwork(numberOfLayers)
         for node in self.firstNodes:
             for nextNode in nextLayer:
                 node.forwardConnections.append(nextNode)
-        i = 4
 
-    def buildNetwork(self, layersRemaining):
+    def buildNetwork(self, layersRemaining,):
         if layersRemaining > 0:
             newLayer = []
             nextLayer = self.buildNetwork(layersRemaining - 1)
             for i in range(len(nextLayer)):
-                newLayer.append(Node())
+                newLayer.append(Node(True))
                 for node in nextLayer:
                     newLayer[i].forwardConnections.append(node)
                     initialWeight = uniform(-.1, .1)
@@ -52,3 +53,12 @@ class BackpropNetwork:
             return newLayer
         else:
             return self.outputs
+
+
+    def updateWeights(self):
+        pass
+
+    #predict a single case
+    #@return True/False if correct or not
+    def predict(self, features, label):
+        pass
