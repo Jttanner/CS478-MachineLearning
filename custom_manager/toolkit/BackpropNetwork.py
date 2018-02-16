@@ -1,10 +1,12 @@
 from random import uniform
-
+from math import exp
 
 class Node:
     forwardConnections = []
     backConnections = []
     forwardWeights = []
+    output = None
+
     hidden = None
 
     def __init__(self, hidden):
@@ -12,10 +14,12 @@ class Node:
         self.backConnections = []
         self.forwardWeights = []
         self.hidden = hidden
+        self.output = 0
+
 
 
 class OutputNode:
-    value = None
+    output = None
     backConnections = []
 
     def __init__(self):
@@ -25,12 +29,16 @@ class BackpropNetwork:
 
     firstNodes = []
     outputs = []
+    learningRate = None
 
-    def __init__(self, numberOfLayers, features):
+
+    def __init__(self, numberOfLayers, features, learningRate):
+        self.learningRate = learningRate
         self.firstNodes = []
         self.outputs = []
         for i in range(len(features)):
             self.firstNodes.append(Node(False))
+            self.firstNodes[i].output = features[i]
             self.outputs.append(OutputNode())
         nextLayer = self.buildNetwork(numberOfLayers)
         for node in self.firstNodes:
@@ -54,11 +62,56 @@ class BackpropNetwork:
         else:
             return self.outputs
 
+    # OUTPUT NODE
+    # deltaj = (targj-outputj)*(outputj*(1-outputj)
+    # deltawij = learningRate*outputi*deltaj
 
-    def updateWeights(self):
-        pass
+    # HIDDEN NODE
+    # deltaj = sum(deltak*wjk)*f'(netj)
+
+    def updateWeights(self, layer, target):
+        nextLayer = layer[0].forwardConnections
+        deltas = []
+        if type(layer[0]) == type(nextLayer[0]): #next layer is hidden layer
+            for jNode in nextLayer:
+                for kNode in nextLayer[0].forwardConnections:
+                    pass
+        else: #next layer is output layer
+            for kNode in nextLayer:
+                delta = (target - kNode.output)*(kNode.output*(1-kNode.output))
+                delta.appends(delta)
+            for iNode in layer: #i layer
+                for jNode, j in zip(iNode.forwardConnections, range(len(iNode.forwardConnections))):
+                    iNode.forwardWeights[j] = self.learningRate * iNode.output * deltas[j]
+
+
+
+
+    def calculateSingleOutput(self, layer, destinationIndex):
+        net = 0
+        for node in layer:
+            net += node.forwardWeights[destinationIndex] * node.output
+        node.forwardWeights[destinationIndex].output = 1/(1+exp(-net))
+        return node.forwardWeights[destinationIndex].output
+
+    #like perceptron toward each next node with output = 1/(1+exp(-net))
+    def processInput(self, features, layer, isTraining):
+        nextLayerFeatures = []
+        for i in range(len(layer[0].forwardConnections)): #TODO: error handling
+            output = self.calculateSingleOutput(layer, i)
+            nextLayerFeatures.append(output)
+        if type(layer[0]) == type(layer[0].forwardConnections[0]):
+            self.processInput(nextLayerFeatures, layer[0].forwardConnections)
+        if isTraining:
+            self.updateWeights(layer)
+
+
+    def setInput(self, features):
+        for node, feature in zip(self.firstNodes, features):
+            node.output = feature
+
 
     #predict a single case
-    #@return True/False if correct or not
     def predict(self, features, label):
         pass
+
