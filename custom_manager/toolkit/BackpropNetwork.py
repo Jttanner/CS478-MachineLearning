@@ -147,9 +147,26 @@ class BackpropNetwork:
             self.calculateOutputRec(layer[0].forwardConnections, layer)
 
     def calculateDeltas(self):
+        #calculate output node deltas
+        self.calculateOutputDeltas()
+        #calculate hidden node deltas
+        self.calculateHiddenDeltas()
+
+    def calculateOutputDeltas(self):
         for outputNode, i in zip(self.outputs, range(len(self.outputs))):
             outputNode.delta = (self.targets[i] - outputNode.output) * outputNode.fPrimeNet
-            
+
+    def calculateHiddenDeltas(self):
+        self.calculateHiddenDeltasRec(self.firstNodes[0].forwardConnections)
+
+    def calculateHiddenDeltasRec(self, layer):
+        if type(layer[0]) is not OutputNode:
+            self.calculateHiddenDeltasRec(layer[0].forwardConnections)
+            for j in range(len(layer)):
+                for k in range(len(layer[0].forwardConnections)):
+                    layer[j].delta += (layer[j].forwardConnections[k].delta * layer[j].forwardWeights[k]) * layer[j].fPrimeNet
+
+
 
     #calculate net
 
