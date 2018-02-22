@@ -13,8 +13,11 @@ class BackpropagationLearner(SupervisedLearner):
     features = []
     labels = []
     accuracyDeltaCutoff = .01
+
+    layerSizesArray = [4, 8, 3]
+
     def __init__(self):
-        network = None
+        network = BackpropNetwork()
         self.bestAccuaracy = 0
         self.currentAccuracy = 0
         self.previousAccuaracy = 0
@@ -32,7 +35,7 @@ class BackpropagationLearner(SupervisedLearner):
 
     def train(self, features, labels):
         if self.network == None:
-            self.network = BackpropNetwork(self.numberOfHiddenLayers, features, self.learningRate)
+            self.network = BackpropNetwork(self.numberOfHiddenLayers, self.learningRate, self.layerSizesArray)
         else:
             while self.epochsWithoutMeaningfulUpdate < 5:
                 features.shuffle(labels)
