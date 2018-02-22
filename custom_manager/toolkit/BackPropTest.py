@@ -1,3 +1,5 @@
 from BackpropNetwork import BackpropNetwork as b
 
-i = b(2, [1, 2, 3, 4, 5])
+i = b(3, [4, 2, 7, 0, 1234], .1, [5, 4, 8, 3])
+
+j = 4

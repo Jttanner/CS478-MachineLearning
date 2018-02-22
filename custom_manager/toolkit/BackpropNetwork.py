@@ -6,15 +6,15 @@ class Node:
     backConnections = []
     forwardWeights = []
     output = None
+    isBias = None
 
-    hidden = None
 
-    def __init__(self, hidden):
+    def __init__(self, isBias):
         self.forwardConnections = []
         self.backConnections = []
         self.forwardWeights = []
-        self.hidden = hidden
         self.output = 0
+        self.isBias = isBias
 
 
 
@@ -23,41 +23,77 @@ class OutputNode:
     backConnections = []
 
     def __init__(self):
-        pass
+        self.output = None
+        self.backConnections = []
+
 
 class BackpropNetwork:
 
     firstNodes = []
     outputs = []
     learningRate = None
+    layerSizesArray = None
+
+    #TODO: initialize in appropriate location
+    targets = []
 
 
-    def __init__(self, numberOfLayers, features, learningRate):
+    def __init__(self, numberOfLayers, features, learningRate, layerSizesArray):
+        self.layerSizesArray = layerSizesArray
         self.learningRate = learningRate
         self.firstNodes = []
         self.outputs = []
-        for i in range(len(features)):
+        for i in range(layerSizesArray[len(layerSizesArray) - 1]):
+            self.outputs.append(OutputNode())
+        for i in range(layerSizesArray[0]):
             self.firstNodes.append(Node(False))
             self.firstNodes[i].output = features[i]
-            self.outputs.append(OutputNode())
-        nextLayer = self.buildNetwork(numberOfLayers)
+        nextLayer = self.buildNetwork(numberOfLayers - 1, 1)
         for node in self.firstNodes:
             for nextNode in nextLayer:
                 node.forwardConnections.append(nextNode)
+                if not nextNode.isBias:
+                    node.forwardWeights.append(self.calculateInitialNodeForwardWeight())
 
-    def buildNetwork(self, layersRemaining,):
+    # numberOfNodesForLAyer
+    # 3
+    # 4
+    # 3
+
+    # numberoflayers = 3
+    # buildNetwork(le)
+    #   if number of
+    #   nextLayer = buildNetwork(numberOfLayers - 1, numberOfNodesForLayer)
+    #   for node in currLayer:
+    #       for forwardnode, i in zip(nextLayer, range(len(forwardNodes)):
+    #           node.forwardConnections[i] = forwardNode
+    #
+
+    #Process input
+    #net
+    #
+
+    def calculateInitialNodeForwardWeight(self):
+        initialWeight = uniform(-.1, .1)
+        while initialWeight == 0:  # making sure that the weights can never initalize to 0, but stay close
+            initialWeight = uniform(-.1, .1)
+        return initialWeight
+
+    def buildNetwork(self, layersRemaining, layerNumber):
         if layersRemaining > 0:
             newLayer = []
-            nextLayer = self.buildNetwork(layersRemaining - 1)
-            for i in range(len(nextLayer)):
-                newLayer.append(Node(True))
+            nextLayer = self.buildNetwork(layersRemaining - 1, layerNumber + 1)
+            for i in range(self.layerSizesArray[layerNumber]):
+                newLayer.append(Node(False))
                 for node in nextLayer:
                     newLayer[i].forwardConnections.append(node)
-                    initialWeight = uniform(-.1, .1)
-                    while initialWeight == 0:  # making sure that the weights can never initalize to 0, but stay close
-                        initialWeight = uniform(-.1, .1)
-                    newLayer[i].forwardWeights.append(initialWeight)
-                    node.backConnections.append(newLayer[i])
+                    newLayer[i].forwardWeights.append(self.calculateInitialNodeForwardWeight())
+            biasNode = Node(True)
+            biasNode.forwardConnections = newLayer[0].forwardConnections
+            biasNode.output = 1
+            for i in range(len(biasNode.forwardConnections)):
+                biasNode.forwardWeights.append(self.calculateInitialNodeForwardWeight())
+            newLayer.append(biasNode)
             return newLayer
         else:
             return self.outputs
@@ -68,50 +104,78 @@ class BackpropNetwork:
 
     # HIDDEN NODE
     # deltaj = sum(deltak*wjk)*f'(netj)
+    # deltawij = learningRate*outputi*deltaj
 
-    def updateWeights(self, layer, target):
-        nextLayer = layer[0].forwardConnections
-        deltas = []
-        if type(layer[0]) == type(nextLayer[0]): #next layer is hidden layer
-            for jNode in nextLayer:
-                for kNode in nextLayer[0].forwardConnections:
-                    pass
-        else: #next layer is output layer
-            for kNode in nextLayer:
-                delta = (target - kNode.output)*(kNode.output*(1-kNode.output))
-                delta.appends(delta)
-            for iNode in layer: #i layer
-                for jNode, j in zip(iNode.forwardConnections, range(len(iNode.forwardConnections))):
-                    iNode.forwardWeights[j] = self.learningRate * iNode.output * deltas[j]
+    #TODO: check target logic
+    def computeDelta(self, node, target, nextIsHidden):
+        nextLayer = node.forwardConnections
+        if nextIsHidden:
+            deltaj = 0
+            for kNode, k in zip(node.forwardConnections, range(len(node.forwardConnections))):
+                deltak = self.computeDelta(kNode, self.targets, 1 if type(kNode) != type(node) else 0)
+                deltaj += deltak * node.forwardWeights[k]
+            return deltaj
+        else:
+            return (target - node.output) * (node.output * (1 - node.output))
 
-
-
+    def updateWeights(self, layer, target): #TODO: dont update weights until im done calculating deltas
+        for iNode in layer:
+            nextLayer = layer[0].forwardConnections
+            jDeltas = []
+            isHidden = False #TODO: check if I can delete this
+            for jNode, j in zip(nextLayer, range(len(nextLayer))):
+                if (type(layer[0]) == type(nextLayer[0])):
+                    isHidden = True
+                else:
+                    isHidden = False
+                jDeltas.append(self.computeDelta(jNode, target, isHidden))
+                iNode.forwardConnections[j] = jDeltas[j]
 
     def calculateSingleOutput(self, layer, destinationIndex):
         net = 0
         for node in layer:
             net += node.forwardWeights[destinationIndex] * node.output
-        node.forwardWeights[destinationIndex].output = 1/(1+exp(-net))
-        return node.forwardWeights[destinationIndex].output
+        layer[0].forwardWeights[destinationIndex].output = 1/(1+exp(-net))
+        return layer[0].forwardWeights[destinationIndex].output
 
     #like perceptron toward each next node with output = 1/(1+exp(-net))
-    def processInput(self, features, layer, isTraining):
-        nextLayerFeatures = []
-        for i in range(len(layer[0].forwardConnections)): #TODO: error handling
-            output = self.calculateSingleOutput(layer, i)
-            nextLayerFeatures.append(output)
-        if type(layer[0]) == type(layer[0].forwardConnections[0]):
-            self.processInput(nextLayerFeatures, layer[0].forwardConnections)
+    def processInput(self, features, target, layer, isTraining):
+        self.initInput(features)
+        self.processInputRec(target, layer)
         if isTraining:
-            self.updateWeights(layer)
+            self.updateWeights(layer, target)
 
+    def processInputRec(self, target, layer):
+        for i in range(len(layer[0].forwardConnections)): #TODO: error handling
+            self.calculateSingleOutput(layer, i)
+        if type(layer[0]) == type(layer[0].forwardConnections[0]):
+            self.processInputRec(target, layer[0].forwardConnections)
 
-    def setInput(self, features):
+    def initInput(self, features):
+        self.resetNetwork(self.firstNodes)
         for node, feature in zip(self.firstNodes, features):
             node.output = feature
 
+    def resetNetwork(self, layer):
+        for node in layer:
+            node.output = None
+        if layer[0].forwardConnections[0] != None:
+            self.resetNetwork(layer.forwardConnections)
+
+    def calculateNetworkOutput(self):
+        outputIndex = None
+        greatestOutput = 0
+        for i in range(len(self.outputs)):
+            if self.outputs[i].output > greatestOutput:
+                outputIndex = i
+        if i != None:
+            return i
+        else:
+            return 0
+
+
 
     #predict a single case
-    def predict(self, features, label):
-        pass
+    def predict(self, features, target, isTraining):
+        self.processInput(features, target, self.firstNodes, isTraining)
 
