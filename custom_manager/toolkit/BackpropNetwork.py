@@ -5,8 +5,11 @@ class Node:
     forwardConnections = []
     backConnections = []
     forwardWeights = []
+    net = None
     output = None
     isBias = None
+    delta = None
+    fPrimeNet = None
 
 
     def __init__(self, isBias):
@@ -15,16 +18,26 @@ class Node:
         self.forwardWeights = []
         self.output = 0
         self.isBias = isBias
+        self.net = 0
+        self.delta = 0
+        self.fPrimeNet = 0
 
 
 
 class OutputNode:
     output = None
     backConnections = []
+    net = None
+    delta = None
+    fPrimeNet = None
 
     def __init__(self):
-        self.output = None
+        self.output = 0
+        self.net = 0
+        self.delta = 0
+        self.fPrimeNet = 0
         self.backConnections = []
+
 
 
 class BackpropNetwork:
@@ -38,7 +51,8 @@ class BackpropNetwork:
     targets = []
 
 
-    def __init__(self, numberOfLayers, features, learningRate, layerSizesArray):
+    def __init__(self, numberOfLayers, features, learningRate, layerSizesArray, targets):
+        self.targets = targets
         self.layerSizesArray = layerSizesArray
         self.learningRate = learningRate
         self.firstNodes = []
@@ -52,8 +66,7 @@ class BackpropNetwork:
         for node in self.firstNodes:
             for nextNode in nextLayer:
                 node.forwardConnections.append(nextNode)
-                if not nextNode.isBias:
-                    node.forwardWeights.append(self.calculateInitialNodeForwardWeight())
+                node.forwardWeights.append(self.calculateInitialNodeForwardWeight())
 
     # numberOfNodesForLAyer
     # 3
@@ -99,15 +112,44 @@ class BackpropNetwork:
             return self.outputs
 
     def processInput(self, features):
-        self.resetNetwork(self.firstNodes)
+        #reset outputs, nets, etc of entire network
+        self.resetNetwork()
+        #set input
         for feature, i in zip(features, range(len(features))):
             self.firstNodes[i].output = feature
+        #calculate nets
+        self.calculateOutput()
 
-    def resetNetwork(self, layer):
-        for node in layer:
-            node.output = None
-        if layer[0].forwardConnections[0] != None:
-            self.resetNetwork(layer.forwardConnections)
+    def resetNetwork(self):
+        self.resetNetworkRec(self.firstNodes)
+
+    def resetNetworkRec(self, layer):
+        if type(layer[0]) is not OutputNode:
+            for node in layer:
+                node.output = 0
+                node.net = 0
+                node.delta = 0
+                for i in range(len(node.forwardWeights)):
+                    node.forwardWeights[i] = self.calculateInitialNodeForwardWeight()
+            self.resetNetworkRec(layer[0].forwardConnections)
+
+    def calculateOutput(self):
+        self.calculateOutputRec(self.firstNodes[0].forwardConnections, self.firstNodes)
+
+    def calculateOutputRec(self, layer, lastLayer):
+        for jNode, j in zip(layer, range(len(layer))):
+            for iNode in lastLayer:
+                jNode.net += iNode.forwardWeights[j] * iNode.output
+            # 1/(1+e^-net)
+            jNode.output = 1/(1+exp(-jNode.net))
+            jNode.fPrimeNet = jNode.output*(1 - jNode.output)
+        if type(layer[0]) is not OutputNode:
+            self.calculateOutputRec(layer[0].forwardConnections, layer)
+
+    def calculateDeltas(self):
+        for outputNode, i in zip(self.outputs, range(len(self.outputs))):
+            outputNode.delta = (self.targets[i] - outputNode.output) * outputNode.fPrimeNet
+            
 
     #calculate net
 
