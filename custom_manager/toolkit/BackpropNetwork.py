@@ -11,7 +11,7 @@ class Node:
     isBias = None
     delta = None
     fPrimeNet = None
-    momentum = .9
+    momentum = 0
 
 
     def __init__(self, isBias):
@@ -51,6 +51,24 @@ class BackpropNetwork:
     #TODO: initialize in appropriate location
     targets = []
 
+    def copyRec(self, layer, nextLayer):
+        if type(nextLayer[0]) is OutputNode:
+            pass
+        else:
+            self.copyRec(nextLayer, nextLayer.fowardConnections)
+        for node in layer:
+            newNode = Node(node.isBias)
+            for weight, node in zip(node.forwardWeights, node.forwardConnections):
+                newNode.forwardWeights.append(weight)
+                newNode.forwardConnections.append(node)
+
+    # copy constructor
+    def __init__(self, copyMe):
+        for outputNode in copyMe.outputNodes:
+            newNode = OutputNode()
+            self.outputs.append(newNode)
+        self.copyRec(copyMe.firstNodes, copyMe.firstNodes.forwardConnections)
+
 
     def __init__(self, numberOfLayers, learningRate, layerSizesArray):
         self.targets = []
@@ -69,6 +87,13 @@ class BackpropNetwork:
                 node.forwardConnections.append(nextNode)
                 node.forwardWeights.append(self.calculateInitialNodeForwardWeight())
                 node.forwardWeightDeltas.append(0)
+        biasNode = Node(True)
+        biasNode.forwardConnections = self.firstNodes[0].forwardConnections
+        biasNode.output = 1
+        for i in range(len(biasNode.forwardConnections)):
+            biasNode.forwardWeights.append(self.calculateInitialNodeForwardWeight())
+            biasNode.forwardWeightDeltas.append(0)
+        self.firstNodes.append(biasNode)
 
 
     def calculateInitialNodeForwardWeight(self):

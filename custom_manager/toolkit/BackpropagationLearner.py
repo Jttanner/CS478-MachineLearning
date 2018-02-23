@@ -4,6 +4,7 @@ from supervised_learner import SupervisedLearner
 class BackpropagationLearner(SupervisedLearner):
     learningRate = .1
     network = None
+    bestNetworkSoFar = None
     currentAccuracy = None
     previousAccuaracy = None
     bestAccuaracy = None
@@ -13,11 +14,13 @@ class BackpropagationLearner(SupervisedLearner):
     features = []
     labels = []
     accuracyDeltaCutoff = .01
+    validationSet = None
 
     layerSizesArray = [4, 8, 3]
 
     def __init__(self):
-        network = BackpropNetwork()
+        self.network = BackpropNetwork(self.numberOfHiddenLayers + 2, self.learningRate, self.layerSizesArray)
+        self.bestNetworkSoFar = None
         self.bestAccuaracy = 0
         self.currentAccuracy = 0
         self.previousAccuaracy = 0
@@ -31,30 +34,41 @@ class BackpropagationLearner(SupervisedLearner):
         if oldBestAccuracy > self.bestAccuaracy + self.accuracyDeltaCutoff:
             return False
         else:
+            self.bestNetworkSoFar = BackpropNetwork(self.network)
             return True
 
     def train(self, features, labels):
-        if self.network == None:
-            self.network = BackpropNetwork(self.numberOfHiddenLayers, self.learningRate, self.layerSizesArray)
-        else:
-            while self.epochsWithoutMeaningfulUpdate < 5:
-                features.shuffle(labels)
-                correct = 0
+        # if self.network == None:
+        #     #layers + 2 to account for input and output layers
+        #     self.network = BackpropNetwork(self.numberOfHiddenLayers + 2, self.learningRate, self.layerSizesArray)
+        # else:
+        while self.epochsWithoutMeaningfulUpdate < 5:
+            features.shuffle(labels)
+            correct = 0
+            total = 0
+            for i in range(features.rows):
+                input = features.row(i)
+                correctAnswer = labels.row(i)
+                result = self.predict(input, [])
+                correct += 1 if result == correctAnswer else 0
                 total = 0
-                for feature, label in zip(features, labels):
-                    result = True if self.network.predict(feature, label) == label else False
-                    correct = correct + 1 if result == True else correct
-                    total = total + 1
-                self.previousAccuaracy = self.currentAccuracy
-                self.currentAccuracy = correct/total
-                self.epochs = self.epochs + 1
-                self.epochsWithoutMeaningfulUpdate = \
-                    self.epochsWithoutMeaningfulUpdate + 1 \
-                    if self.checkAccuracyForMeaningfulUpdate() \
-                    else self.epochsWithoutMeaningfulUpdate()
-
+            self.previousAccuaracy = self.currentAccuracy
+            self.currentAccuracy = correct/total
+            self.epochs = self.epochs + 1
+            self.epochsWithoutMeaningfulUpdate +=  \
+                1 if self.checkAccuracyForMeaningfulUpdate() else 0
 
 
 
     def predict(self, features, labels):
-        print('predict')
+        targets = []
+        if labels != []:
+            targets.append(labels[0])
+        labels = []
+        self.network.processInput(features, targets, False)
+        output = 0
+        for outputNode, i in zip(self.network.outputs, range(len(self.network.outputs))):
+            if outputNode.output > outputNode:
+                output = i
+        labels.append(output)
+        return output

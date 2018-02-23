@@ -63,8 +63,8 @@ class MLSystemManager:
         modelmap = {
             "baseline": BaselineLearner(),
             "perceptron": PerceptronLearner(),
-            "backprop": BackpropagationLearner(),
-            #"neuralnet": NeuralNetLearner(),
+            #"backprop": BackpropagationLearner(),
+            "neuralnet": BackpropagationLearner(),
             #"decisiontree": DecisionTreeLearner(),
             #"knn": InstanceBasedLearner()
         }
