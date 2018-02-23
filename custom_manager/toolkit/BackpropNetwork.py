@@ -48,26 +48,25 @@ class BackpropNetwork:
     learningRate = None
     layerSizesArray = None
 
-    #TODO: initialize in appropriate location
     targets = []
 
-    def copyRec(self, layer, nextLayer):
-        if type(nextLayer[0]) is OutputNode:
-            pass
-        else:
-            self.copyRec(nextLayer, nextLayer.fowardConnections)
-        for node in layer:
-            newNode = Node(node.isBias)
-            for weight, node in zip(node.forwardWeights, node.forwardConnections):
-                newNode.forwardWeights.append(weight)
-                newNode.forwardConnections.append(node)
-
-    # copy constructor
-    def __init__(self, copyMe):
-        for outputNode in copyMe.outputNodes:
-            newNode = OutputNode()
-            self.outputs.append(newNode)
-        self.copyRec(copyMe.firstNodes, copyMe.firstNodes.forwardConnections)
+    # def copyRec(self, layer, nextLayer):
+    #     if type(nextLayer[0]) is OutputNode:
+    #         pass
+    #     else:
+    #         self.copyRec(nextLayer, nextLayer.fowardConnections)
+    #     for node in layer:
+    #         newNode = Node(node.isBias)
+    #         for weight, node in zip(node.forwardWeights, node.forwardConnections):
+    #             newNode.forwardWeights.append(weight)
+    #             newNode.forwardConnections.append(node)
+    #
+    # # copy constructor
+    # def __init__(self, copyMe):
+    #     for outputNode in copyMe.outputNodes:
+    #         newNode = OutputNode()
+    #         self.outputs.append(newNode)
+    #     self.copyRec(copyMe.firstNodes, copyMe.firstNodes.forwardConnections)
 
 
     def __init__(self, numberOfLayers, learningRate, layerSizesArray):
