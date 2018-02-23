@@ -21,6 +21,7 @@ class BackpropagationLearner(SupervisedLearner):
     trainingSetFeatures = []
     trainingSetLabels = []
     isTraining = False
+    needResetBeforeTest = True
 
     layerSizesArray = [4, 8, 3]
 
@@ -90,7 +91,8 @@ class BackpropagationLearner(SupervisedLearner):
             else:
                 self.trainingSetFeatures.append(features.row(i))
                 self.trainingSetLabels.append(features.row(i))
-        while self.epochsWithoutMeaningfulUpdate < 5:
+        # while self.epochsWithoutMeaningfulUpdate < 5:
+        while self.epochs < 10:
             features.shuffle(labels)
             for i in range(len(self.trainingSetFeatures)):
                 input = self.trainingSetFeatures[i]
@@ -98,7 +100,9 @@ class BackpropagationLearner(SupervisedLearner):
                 self.isTraining = True
                 targets = []
                 for j in range(len(self.network.outputs)):
-                    if self.validationSetLabels[i] == j:
+                    debugj = j
+                    debuglabel = self.validationSetLabels[i][0]
+                    if self.validationSetLabels[i][0] == j:
                         targets.append(1)
                     else:
                         targets.append(0)
@@ -106,21 +110,23 @@ class BackpropagationLearner(SupervisedLearner):
             self.epochs = self.epochs + 1
             self.checkAccuracyForMeaningfulUpdate()
         self.isTraining = False
+        print('Epochs: ' + str(self.epochs))
+        print(self.bestAccuaracy)
 
 
 
     def predict(self, features, labels):
-        if labels == []:
-            for node in range(len(self.network.outputs)):
-                labels.append(0)
         targets = labels
         # if labels != []:
         #     targets = labels
-        # labels = []
+        #labels = []
+        self.network.resetNetwork
         self.network.processInput(features, targets, self.isTraining)
         output = 0
+        outputIndex = 0
         for outputNode, i in zip(self.network.outputs, range(len(self.network.outputs))):
             if outputNode.output > output:
-                output = i
-        labels.append(output)
+                outputIndex = i
+                output = outputNode.output
+        labels.append(outputIndex)
         return output

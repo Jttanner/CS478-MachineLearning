@@ -132,9 +132,10 @@ class BackpropNetwork:
         #calculate nets
         self.calculateOutput()
         #calculate deltas
-        self.calculateDeltas()
+
         #update weights if its training
         if isTraining:
+            self.calculateDeltas()
             self.updateWeightDeltas()
 
     def resetNetwork(self):
