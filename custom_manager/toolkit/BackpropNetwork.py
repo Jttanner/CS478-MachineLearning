@@ -31,6 +31,7 @@ class OutputNode:
     net = None
     delta = None
     fPrimeNet = None
+    isBias = False
 
     def __init__(self):
         self.output = 0
@@ -144,11 +145,12 @@ class BackpropNetwork:
     def resetNetworkRec(self, layer):
         if type(layer[0]) is not OutputNode:
             for node in layer:
-                node.output = 0
+                node.output = 0 if not node.isBias else 1
                 node.net = 0
                 node.delta = 0
-                for i in range(len(node.forwardWeights)):
-                    node.forwardWeights[i] = self.calculateInitialNodeForwardWeight()
+                node.fPrimeNet = 0
+                #for i in range(len(node.forwardWeights)):
+                    #node.forwardWeights[i] = self.calculateInitialNodeForwardWeight()
             self.resetNetworkRec(layer[0].forwardConnections)
 
     def calculateOutput(self):
@@ -157,9 +159,9 @@ class BackpropNetwork:
     def calculateOutputRec(self, layer, lastLayer):
         for jNode, j in zip(layer, range(len(layer))):
             for iNode in lastLayer:
-                jNode.net += iNode.forwardWeights[j] * iNode.output
+                jNode.net += iNode.forwardWeights[j] * iNode.output if not iNode.isBias else iNode.forwardWeights[j]
             # 1/(1+e^-net)
-            jNode.output = 1/(1+exp(-jNode.net))
+            jNode.output = 1/(1+exp(-jNode.net)) if not jNode.isBias else jNode.output
             jNode.fPrimeNet = jNode.output*(1 - jNode.output)
         if type(layer[0]) is not OutputNode:
             self.calculateOutputRec(layer[0].forwardConnections, layer)

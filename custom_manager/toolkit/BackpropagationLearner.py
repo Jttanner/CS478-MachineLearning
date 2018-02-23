@@ -41,17 +41,26 @@ class BackpropagationLearner(SupervisedLearner):
     def checkAccuracyForMeaningfulUpdate(self):
         self.isTraining = False
         mses = []
+        testPred = []
+        testLabels = []
         for i in range(len(self.validationSetFeatures)):
             errors = []
             targets = []
             for j in range(len(self.network.outputs)):
-                if self.validationSetLabels[i] == j:
+                if self.validationSetLabels[i][0] == j:
                     targets.append(1)
+                    testLabels.append(j)
                 else:
                     targets.append(0)
-            self.predict(self.validationSetFeatures[i], targets)
+            self.predictForTraining(self.validationSetFeatures[i], targets)
+            output = 0
+            outputIndex = 0
             for j in range(len(self.network.outputs)):
+                if self.network.outputs[j].output > output:
+                    output = self.network.outputs[j].output
+                    outputIndex = j
                 errors.append(targets[j] - self.network.outputs[j].output)
+            testPred.append(outputIndex)
             sse = 0
             for error in errors:
                 sse += error**2
@@ -82,6 +91,9 @@ class BackpropagationLearner(SupervisedLearner):
 
 
     def train(self, features, labels):
+        if features.rows < 4:
+            self.predictForTraining(features.row(0), labels.row(0))
+            return
         features.shuffle(labels)
         validationSetSize = int(features.rows * .25)
         for i in range(features.rows):
@@ -91,8 +103,8 @@ class BackpropagationLearner(SupervisedLearner):
             else:
                 self.trainingSetFeatures.append(features.row(i))
                 self.trainingSetLabels.append(features.row(i))
-        # while self.epochsWithoutMeaningfulUpdate < 5:
-        while self.epochs < 10:
+        while self.epochsWithoutMeaningfulUpdate < 5:
+        #while self.epochs < 10:
             features.shuffle(labels)
             for i in range(len(self.trainingSetFeatures)):
                 input = self.trainingSetFeatures[i]
@@ -106,7 +118,7 @@ class BackpropagationLearner(SupervisedLearner):
                         targets.append(1)
                     else:
                         targets.append(0)
-                result = self.predict(input, targets)
+                result = self.predictForTraining(input, targets)
             self.epochs = self.epochs + 1
             self.checkAccuracyForMeaningfulUpdate()
         self.isTraining = False
@@ -114,14 +126,15 @@ class BackpropagationLearner(SupervisedLearner):
         print(self.bestAccuaracy)
 
 
+    def predictForTraining(self, features, targets):
+        self.network.processInput(features, targets, True)
+
+
+
 
     def predict(self, features, labels):
-        targets = labels
-        # if labels != []:
-        #     targets = labels
-        #labels = []
         self.network.resetNetwork
-        self.network.processInput(features, targets, self.isTraining)
+        self.network.processInput(features, [0, 0, 0], False)
         output = 0
         outputIndex = 0
         for outputNode, i in zip(self.network.outputs, range(len(self.network.outputs))):
