@@ -1,6 +1,7 @@
 from random import uniform
 from math import exp
 
+
 class Node:
     forwardConnections = []
     backConnections = []
@@ -11,7 +12,7 @@ class Node:
     isBias = None
     delta = None
     fPrimeNet = None
-    momentum = 0
+    momentum = .9
 
 
     def __init__(self, isBias):
@@ -100,7 +101,7 @@ class BackpropNetwork:
         initialWeight = uniform(-.1, .1)
         while initialWeight == 0:  # making sure that the weights can never initalize to 0, but stay close
             initialWeight = uniform(-.1, .1)
-        initialWeight = 1
+        #initialWeight = 1
         return initialWeight
 
     def buildNetwork(self, layersRemaining, layerNumber):
@@ -139,6 +140,7 @@ class BackpropNetwork:
         if isTraining:
             self.calculateDeltas()
             self.updateWeightDeltas()
+        return self.outputs
 
     def resetNetwork(self):
         self.resetNetworkRec(self.firstNodes)
