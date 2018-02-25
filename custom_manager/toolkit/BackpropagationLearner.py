@@ -26,12 +26,13 @@ class BackpropagationLearner(SupervisedLearner):
     validationMSEs = []
     trainingMSEs = []
     testMSEs = []
+    classificationAccuracies =[]
 
     layerSizesArray = [4, 8, 3]
 
     def writeCSVFile(self, info, fileName):
-        with open(str(fileName), 'wb') as myfile:
-            wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+        with open(str(fileName), 'w') as myfile:
+            wr = csv.writer(myfile)
             wr.writerow(info)
 
     def __init__(self):
@@ -48,7 +49,28 @@ class BackpropagationLearner(SupervisedLearner):
         self.epochsWithoutMeaningfulUpdate = 0
 
     def checkAccuracyForMeaningfulUpdate(self):
-        self.isTraining = False
+        totalMse = self.calculateValidationMSEs()
+        self.validationMSEs.append(totalMse)
+        if totalMse < 1 - self.bestAccuaracy:
+            self.bestNetworkSoFar = BackpropNetwork(self.numberOfHiddenLayers + 2, self.learningRate, self.layerSizesArray)
+            moreLayers = False
+            currLayer = self.bestNetworkSoFar.firstNodes
+            copyMeLayer = self.network.firstNodes
+            while moreLayers:
+                for i in range(len(currLayer)):
+                    for j in range(len(currLayer[i].forwardConnections)):
+                        currLayer[i].forwardWeights[j] = copyMeLayer[i].forwardWeights[j]
+                    if type(currLayer[0]) is type(currLayer.forwardConnections[0]):
+                        currLayer = currLayer.forwardConnections[0]
+                        copyMeLayer = copyMeLayer.forwardConnections[0]
+                    else:
+                        moreLayers = False
+            self.bestAccuaracy = 1 - totalMse
+            self.epochsWithoutMeaningfulUpdate = 0
+        else:
+            self.epochsWithoutMeaningfulUpdate += 1
+
+    def calculateValidationMSEs(self):
         mses = []
         testPred = []
         testLabels = []
@@ -79,29 +101,7 @@ class BackpropagationLearner(SupervisedLearner):
         for mse in mses:
             totalMse += mse
         totalMse = totalMse / len(mses)
-        self.validationMSEs.append(totalMse)
-        if totalMse < 1 - self.bestAccuaracy:
-            self.bestNetworkSoFar = BackpropNetwork(self.numberOfHiddenLayers + 2, self.learningRate, self.layerSizesArray)
-            moreLayers = False
-            currLayer = self.bestNetworkSoFar.firstNodes
-            copyMeLayer = self.network.firstNodes
-            while moreLayers:
-                for i in range(len(currLayer)):
-                    for j in range(len(currLayer[i].forwardConnections)):
-                        currLayer[i].forwardWeights[j] = copyMeLayer[i].forwardWeights[j]
-                    if type(currLayer[0]) is type(currLayer.forwardConnections[0]):
-                        currLayer = currLayer.forwardConnections[0]
-                        copyMeLayer = copyMeLayer.forwardConnections[0]
-                    else:
-                        moreLayers = False
-            self.bestAccuaracy = 1 - totalMse
-            self.epochsWithoutMeaningfulUpdate = 0
-        else:
-            self.epochsWithoutMeaningfulUpdate += 1
-
-    def calculateMSEs(self):
-        pass
-
+        return totalMse
 
     def train(self, features, labels):
         self.isTraining = True
@@ -118,41 +118,48 @@ class BackpropagationLearner(SupervisedLearner):
                 self.trainingSetFeatures.append(features.row(i))
                 self.trainingSetLabels.append(features.row(i))
         while self.epochsWithoutMeaningfulUpdate < 20:
-        #while self.epochs < 100:
+            correct = 0
+            total = 0
             features.shuffle(labels)
             self.features = features
             self.labels = labels
-            #for i in range(len(self.trainingSetFeatures)):
+            mses = []
             for i in range(self.features.rows):
-                #input = self.trainingSetFeatures[i]
-                #correctAnswer = self.trainingSetLabels[i]
+                sse = 0
                 input = self.features.row(i)
                 correctAnswer = self.labels.row(i)
                 targets = [1,0,0] if correctAnswer[0] == 0 else [0,1,0] if correctAnswer[0] == 1 else [0,0,1]
-                # for j in range(len(self.network.outputs)):
-                #     debugj = j
-                #     debuglabel = self.validationSetLabels[i][0]
-                #     if self.validationSetLabels[i][0] == j:
-                #         targets.append(1)
-                #     else:
-                #         targets.append(0)
-                result = self.predictForTraining(input, targets)
-                i = 4
+                self.predictForTraining(input, targets)
+                for j in range(len(self.network.outputs)):
+                    sse += (targets[j] - self.network.outputs[j].output)**2
+                mses.append(sse/len(self.network.outputs))
+                total += 1
+                answerIndex = 0
+                checkAnswer = 0
+                for i in range(len(self.network.outputs)):
+                    if checkAnswer < self.network.outputs[i].output:
+                        checkAnswer = self.network.outputs[i].output
+                        answerIndex = i
+                correct += 1 if answerIndex == correctAnswer[0] else 0
             self.epochs = self.epochs + 1
+            totalMSE = 0
+            for mse in mses:
+                totalMSE += mse
+            totalMSE = totalMSE/len(mses)
+            self.classificationAccuracies.append(correct/features.rows)
+            self.trainingMSEs.append(totalMSE)
             self.checkAccuracyForMeaningfulUpdate()
         print('Epochs: ' + str(self.epochs))
-        print(self.bestAccuaracy)
         self.isTraining = False
+        self.writeCSVFile(self.trainingMSEs, 'trainingMSEs.csv')
+        self.writeCSVFile(self.validationMSEs,'validationMSEs.csv')
+        self.writeCSVFile(self.classificationAccuracies, 'classificationAccuracies.csv')
 
 
     def predictForTraining(self, features, targets):
         return self.network.processInput(features, targets, True)
 
-
-
-
     def predict(self, features, labels):
-        #self.network.resetNetwork
         self.network.processInput(features, [], False)
         output = 0
         outputIndex = 0
