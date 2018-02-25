@@ -1,10 +1,20 @@
 from BackpropNetwork import BackpropNetwork as b
 
-input = [0.3,0.7]
-target = [0.1,1.0]
+input = [.3, .7]
+target = [.1,1]
 
-i = b(3, .1, [2, 2, 2, 2])
 
+#
+# input1 = [0,0]
+# input2 = [0,1]
+# target1 = [1]
+# target2 = [0]
+# i = b(2, 1, [2,2,1])
+#
+# i.processInput(input1, target1, True)
+# i.processInput(input2, target2, True)
+
+i = b(3, .1, [2,2,2,2])
 i.firstNodes[0].forwardWeights[0] = .2
 i.firstNodes[0].forwardWeights[1] = .3
 
@@ -87,8 +97,8 @@ printErrors(i, firstHiddenLayer, secondHiddenLayer)
 print("NEXT")
 printWeights()
 i.processInput(input, target, True)
-# print("outputs: ")
-# print(i.outputs[0].output)
-# print(i.outputs[1].output)
+print("outputs: ")
+print(i.outputs[0].output)
+print(i.outputs[1].output)
 
 j = 4
