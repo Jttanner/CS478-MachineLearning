@@ -12,7 +12,7 @@ class Node:
     isBias = None
     delta = None
     fPrimeNet = None
-    momentum = .9
+    momentum = 0
 
 
     def __init__(self, isBias):
@@ -108,12 +108,24 @@ class BackpropNetwork:
         if layersRemaining > 0:
             newLayer = []
             nextLayer = self.buildNetwork(layersRemaining - 1, layerNumber + 1)
+            newIndex = 0
             for i in range(self.layerSizesArray[layerNumber]):
-                newLayer.append(Node(False))
-                for node in nextLayer:
-                    newLayer[i].forwardConnections.append(node)
-                    newLayer[i].forwardWeights.append(self.calculateInitialNodeForwardWeight())
-                    newLayer[i].forwardWeightDeltas.append(0)
+                if layerNumber == 2:
+                    #if i > 1:
+                    if True:
+                        newLayer.append(Node(False))
+                        for node in nextLayer:
+                            newLayer[newIndex].forwardConnections.append(node)
+                            newLayer[newIndex].forwardWeights.append(self.calculateInitialNodeForwardWeight())
+                            newLayer[newIndex].forwardWeightDeltas.append(0)
+                        newIndex += 1
+                else:
+                    newLayer.append(Node(False))
+                    for node in nextLayer:
+                        newLayer[newIndex].forwardConnections.append(node)
+                        newLayer[newIndex].forwardWeights.append(self.calculateInitialNodeForwardWeight())
+                        newLayer[newIndex].forwardWeightDeltas.append(0)
+                    newIndex += 1
             biasNode = Node(True)
             biasNode.forwardConnections = newLayer[0].forwardConnections
             biasNode.output = 1
@@ -131,7 +143,10 @@ class BackpropNetwork:
         self.resetNetwork()
         #set input
         for feature, i in zip(features, range(len(features))):
-            self.firstNodes[i].output = feature
+            try:
+                self.firstNodes[i].output = feature
+            except:
+                i = 4
         #calculate nets
         self.calculateOutput()
         #calculate deltas
@@ -178,7 +193,10 @@ class BackpropNetwork:
 
     def calculateOutputDeltas(self):
         for outputNode, i in zip(self.outputs, range(len(self.outputs))):
-            outputNode.delta = (self.targets[i] - outputNode.output) * outputNode.fPrimeNet
+            try:
+                outputNode.delta = (self.targets[i] - outputNode.output) * outputNode.fPrimeNet
+            except:
+                i = 4
 
     def calculateHiddenDeltas(self):
         self.calculateHiddenDeltasRec(self.firstNodes[0].forwardConnections)
