@@ -13,7 +13,7 @@ class BackpropagationLearner(SupervisedLearner):
     bestAccuaracy = None
     epochs = None
     epochsWithoutMeaningfulUpdate = None
-    numberOfHiddenLayers = 1
+    numberOfHiddenLayers = 6
     features = []
     labels = []
     accuracyDeltaCutoff = .01
@@ -31,7 +31,7 @@ class BackpropagationLearner(SupervisedLearner):
 
 
     #layerSizesArray = [4, 8, 3]
-    layerSizesArray = [11, 128, 11]
+    layerSizesArray = [3, 6, 12, 18, 18, 12, 6, 2]
 
     def writeCSVFile(self, info, fileName):
         with open(str(fileName), 'w') as myfile:
@@ -127,7 +127,7 @@ class BackpropagationLearner(SupervisedLearner):
             else:
                 self.trainingSetFeatures.append(features.row(i))
                 self.trainingSetLabels.append(features.row(i))
-        while self.epochsWithoutMeaningfulUpdate < 25 and self.epochs < 1000:
+        while self.epochsWithoutMeaningfulUpdate < 25 and self.epochs < 500:
         #while self.epochs < 300:
             print("current epoch: " + str(self.epochs))
             correct = 0
@@ -166,9 +166,9 @@ class BackpropagationLearner(SupervisedLearner):
             self.checkAccuracyForMeaningfulUpdate()
         print('Epochs: ' + str(self.epochs))
         self.isTraining = False
-        self.writeCSVFile(self.trainingMSEs, 'vowel_trainingMSEsnodes1.csv')
-        self.writeCSVFile(self.validationMSEs,'vowel_validationMSEsnodes1.csv')
-        self.writeCSVFile(self.classificationAccuracies, 'vowel_classificationAccuraciesnodes1.csv')
+        self.writeCSVFile(self.trainingMSEs, 'clicks_trainingMSEsnodes2.csv')
+        self.writeCSVFile(self.validationMSEs,'clicks_validationMSEsnodes2.csv')
+        self.writeCSVFile(self.classificationAccuracies, 'clicks_classificationAccuraciesnodes2.csv')
 
 
     def predictForTraining(self, features, targets):
