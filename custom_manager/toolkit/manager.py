@@ -10,6 +10,7 @@ from baseline_learner import BaselineLearner
 from matrix import Matrix
 from PerceptronLearner import PerceptronLearner
 from BackpropagationLearner import BackpropagationLearner
+from DecisionTreeLearner import DecisionTreeLearner
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -64,7 +65,7 @@ class MLSystemManager:
             "baseline": BaselineLearner(),
             "perceptron": PerceptronLearner(),
             "neuralnet": BackpropagationLearner(),
-            #"decisiontree": DecisionTreeLearner(),
+            "decisiontree": DecisionTreeLearner(),
             #"knn": InstanceBasedLearner()
         }
         if model in modelmap:
