@@ -11,18 +11,49 @@ class DecisionTree:
     features = None
     labels = None
     numberOfClassificationForAttribute = None
+    currLayerDecisionIndex = None
+    nextTreeLayers = []
     baseFeatureInfo = []
+    finalDecision = None
+
+
     def __init__(self, features, labels, numberOfClassificationForAttribute):
+        self.baseFeatureInfo = []
         self.numberOfClassificationForAttribute = numberOfClassificationForAttribute
         self.features = features
         self.labels = labels
         self.buildTree(self.features, self.labels, self.baseFeatureInfo)
+        self.nextTreeLayers = []
+        self.currLayerDecisionIndex = None
+        self.finalDecision = None
 
     def buildTree(self, features, labels, baseFeatureInfo):
         self.buildEmptyInfoList(baseFeatureInfo)
         self.buildFeatureInfo(features, self.baseFeatureInfo)
         bestInfoIndex = self.calculateIndexWithMostInformationGain(baseFeatureInfo)
+        self.currLayerDecisionIndex = bestInfoIndex
         partitionedFeatures, partitionedLabels = self.createPartitonedFeaturesAndLabels(features, labels, bestInfoIndex)
+        decisionBranches = len(partitionedFeatures)
+        for i in range(decisionBranches):
+            if len(partitionedFeatures[i]) > 1:
+                self.nextTreeLayers.append(DecisionTree(partitionedFeatures[i], partitionedLabels[i], len(partitionedFeatures[self.currLayerDecisionIndex])))
+                self.currLayerDecisionIndex = bestInfoIndex
+            elif partitionedFeatures[i] != []:
+                bestLabelDecisions = []
+                maxDecisions = 0
+                for j in range(len(partitionedLabels[i])):
+                    if partitionedLabels[i][j]  > maxDecisions:
+                        bestLabelDecisions.append(0)
+                for j in range(len(partitionedLabels[i])):
+                    bestLabelDecisions[partitionedLabels[i][j]] += 1
+                bestLabelIndex = 0
+                for j in range(len(bestLabelDecisions)):
+                    if bestLabelDecisions[j] > bestInfoIndex:
+                        bestLabelIndex = j
+                self.finalDecision = bestLabelIndex
+
+
+
 
     def createPartitonedFeaturesAndLabels(self, features, labels, bestInfoIndex):
         partitionedFeatures = []
@@ -30,28 +61,19 @@ class DecisionTree:
         classificationCount = 0
         for i in range(len(features)):
             if features[i][bestInfoIndex] > classificationCount:
-                classificationCount = features[i][bestInfoIndex]
+                classificationCount = features[i][bestInfoIndex] + 1
         for i in range(classificationCount):
             partitionedFeatures.append([])
             partitionedLabels.append([])
             for j in range(len(features)):
                 feature = []
                 if features[j][bestInfoIndex] == i:
-                    for k in range(len(features[i])):
-                        feature.append(features[j][k])
+                    for k in range(len(features[j])):
+                        if k != bestInfoIndex:
+                            feature.append(features[j][k])
                     partitionedFeatures[i].append(feature)
                     partitionedLabels[i].append(labels[i])
         return partitionedFeatures, partitionedLabels
-
-
-        # for i in range(len(features)):
-        #     partitionedFeature = []
-        #     for j in range(len(features[i]) - 1):
-        #         if j != bestInfoIndex:
-        #             partitionedFeature.append(partitionedFeatures[i][j])
-        #     partitionedLabels.append()
-        # return partitionedFeatures, partitionedLabels
-
 
     def buildEmptyInfoList(self, list):
         for i in range(len(self.features[0])):
