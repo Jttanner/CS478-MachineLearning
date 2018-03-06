@@ -16,9 +16,41 @@ class DecisionTree:
         self.numberOfClassificationForAttribute = numberOfClassificationForAttribute
         self.features = features
         self.labels = labels
-        self.buildEmptyInfoList(self.baseFeatureInfo)
-        self.buildFeatureInfo(self.features, self.baseFeatureInfo)
-        self.calculateIndexWithMostInformationGain(self.baseFeatureInfo)
+        self.buildTree(self.features, self.labels, self.baseFeatureInfo)
+
+    def buildTree(self, features, labels, baseFeatureInfo):
+        self.buildEmptyInfoList(baseFeatureInfo)
+        self.buildFeatureInfo(features, self.baseFeatureInfo)
+        bestInfoIndex = self.calculateIndexWithMostInformationGain(baseFeatureInfo)
+        partitionedFeatures, partitionedLabels = self.createPartitonedFeaturesAndLabels(features, labels, bestInfoIndex)
+
+    def createPartitonedFeaturesAndLabels(self, features, labels, bestInfoIndex):
+        partitionedFeatures = []
+        partitionedLabels = []
+        classificationCount = 0
+        for i in range(len(features)):
+            if features[i][bestInfoIndex] > classificationCount:
+                classificationCount = features[i][bestInfoIndex]
+        for i in range(classificationCount):
+            partitionedFeatures.append([])
+            partitionedLabels.append([])
+            for j in range(len(features)):
+                feature = []
+                if features[j][bestInfoIndex] == i:
+                    for k in range(len(features[i])):
+                        feature.append(features[j][k])
+                    partitionedFeatures[i].append(feature)
+                    partitionedLabels[i].append(labels[i])
+        return partitionedFeatures, partitionedLabels
+
+
+        # for i in range(len(features)):
+        #     partitionedFeature = []
+        #     for j in range(len(features[i]) - 1):
+        #         if j != bestInfoIndex:
+        #             partitionedFeature.append(partitionedFeatures[i][j])
+        #     partitionedLabels.append()
+        # return partitionedFeatures, partitionedLabels
 
 
     def buildEmptyInfoList(self, list):
