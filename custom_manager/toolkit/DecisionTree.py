@@ -8,22 +8,23 @@ class DecisionNode:
         self.currLayerFeatureInfo = currLayerFeatureInfo
 
 class DecisionTree:
-
     features = None
     labels = None
-    maxNumberOfClassificationForAttribute = 10
+    numberOfClassificationForAttribute = None
     baseFeatureInfo = []
-
-    def __init__(self, features, labels):
+    def __init__(self, features, labels, numberOfClassificationForAttribute):
+        self.numberOfClassificationForAttribute = numberOfClassificationForAttribute
         self.features = features
         self.labels = labels
         self.buildEmptyInfoList(self.baseFeatureInfo)
         self.buildFeatureInfo(self.features, self.baseFeatureInfo)
+        self.calculateIndexWithMostInformationGain(self.baseFeatureInfo)
+
 
     def buildEmptyInfoList(self, list):
         for i in range(len(self.features[0])):
             currInfoEntry = []
-            for j in range(self.maxNumberOfClassificationForAttribute):
+            for j in range(self.numberOfClassificationForAttribute):
                 currInfoEntry.append(0)
             list.append(currInfoEntry)
 
@@ -32,81 +33,26 @@ class DecisionTree:
             for j in range(len(features[i])): #each row entry
                 emptyInfoList[j][features[i][j]] += 1
 
-
-#         self.features = features
-#         self.featureCount = featureCount
-#         for i in range(featureCount):
-#             self.firstLayer.append(DecisionNode(i))
-#             fillFeatureInfo = []
-#             for j in range(self.maxNumberOfClassificationForAttribute):
-#                 fillFeatureInfo.append(0)
-#             self.featureInfo.append(fillFeatureInfo)
-#         self.buildTree(self.firstLayer)
-
-
-# class DecisionNode:
-#     children = []
-#     index = None
-#     currLayerFeatureInfoSize = 0
-#     currFeatureInfo = []
-#     def __init__(self, index):
-#         self.index = index
-#         #self.currFeatureInfo = currFeatureInfo
-#
-#     def calculateNodeInfo(self):
-#         total = self.currLayerFeatureInfo
-#         currFeatureCount = 0
-#         logSum = 0
-#         for feature in self.currFeatureInfo:
-#             currFeatureCount += feature
-#         for feature in self.currFeatureInfo:
-#             logSum += (-feature/currFeatureCount) * math.log(feature/currFeatureCount, 2)
-#         nodeInfo = (currFeatureCount/total) * logSum
-#         return nodeInfo
-#
-#
-#
-# class DecisionTree:
-#     firstLayerTotal = 0
-#     firstLayer = []
-#     maxNumberOfClassificationForAttribute = 10
-#     featureInfo = []
-#     featureCount = 0
-#     features = None
-#
-#     def __init__(self, featureCount, features):
-#         self.features = features
-#         self.featureCount = featureCount
-#         for i in range(featureCount):
-#             self.firstLayer.append(DecisionNode(i))
-#             fillFeatureInfo = []
-#             for j in range(self.maxNumberOfClassificationForAttribute):
-#                 fillFeatureInfo.append(0)
-#             self.featureInfo.append(fillFeatureInfo)
-#         self.buildTree(self.firstLayer)
-#
-#     def inputTrainingFeatures(self, features):
-#         for feature in features:
-#             self.featureInfo[feature[0]] += 1
-#
-#     def buildTree(self, layer):
-#         for i in range(len(layer) - 1):  #go through all but the label
-#             currNodeInfoList = []
-#             for j in range(len(layer) - 1):
-#                 if i != j:
-#                     nodeInfo = []
-#                     for k in range(len(layer[j])):
-#                         nodeInfo.append(layer[j][k])
-#                     currNodeInfoList.append(nodeInfo)
-#             self.buildTree(currNodeInfoList)
-#
-#     def getIndexWithBestInformationGain(self, layer):
-#         infos = []
-#         for node in layer:
-#             infoGain = node.calculateInfoGain()
-#             infos.append(infoGain)
-#         bestInfoIndex = None
-#         for i in range (layer):
-#             bestInfoIndex = i if bestInfoIndex == None or layer[i] < bestInfoIndex else bestInfoIndex
-#         return bestInfoIndex
-#
+    def calculateIndexWithMostInformationGain(self, featuresInfo):
+        information = []
+        totalForAllFeatures = 0
+        for i in range(len(featuresInfo)):
+            for j in range(len(featuresInfo[i])):
+                totalForAllFeatures += featuresInfo[i][j]
+        for j in range(len(featuresInfo[i])):
+            totalForThisFeature = 0
+            for i in range(len(featuresInfo)):
+                totalForThisFeature += featuresInfo[i][j]
+            logSum = 0
+            for i in range(len(featuresInfo)):
+                logSum += -(featuresInfo[i][j] / totalForThisFeature) * math.log(featuresInfo[i][j] / totalForThisFeature, 2) if featuresInfo[i][j] != 0 else 0
+            information.append((totalForThisFeature / totalForAllFeatures) * logSum)
+        valueForBestInfoGain = None
+        indexWithBestInfoGain = None
+        for i in range(len(information)):
+            if indexWithBestInfoGain == None or information[i] < valueForBestInfoGain:
+                valueForBestInfoGain = information[i]
+                indexWithBestInfoGain = i
+        # print(information)
+        # print(indexWithBestInfoGain)
+        return indexWithBestInfoGain
