@@ -77,27 +77,6 @@ class DecisionTree:
             partitionedLabels[valueAtBestInfoIndex].append(labels[i])
         return  partitionedFeatures, partitionedLabels
 
-    #
-    # def createPartitonedFeaturesAndLabels(self, features, labels, bestInfoIndex):
-    #     partitionedFeatures = []
-    #     partitionedLabels = []
-    #     classificationCount = 0
-    #     for i in range(len(features)):
-    #         if features[i][bestInfoIndex] > classificationCount:
-    #             classificationCount = features[i][bestInfoIndex] + 1
-    #     for i in range(classificationCount + 1):
-    #         partitionedFeatures.append([])
-    #         partitionedLabels.append([])
-    #         for j in range(len(features)):
-    #             feature = []
-    #             if features[j][bestInfoIndex] == i:  #TODO: Fix this.  Partition correctly
-    #                 for k in range(len(features[j])):
-    #                     if k != bestInfoIndex:
-    #                         feature.append(features[j][k])
-    #                 partitionedFeatures[i].append(feature)
-    #                 partitionedLabels[i].append(labels[i])
-    #     return partitionedFeatures, partitionedLabels
-
     def buildEmptyInfoList(self, list):
         for i in range(len(self.features[0])):
             currInfoEntry = []
