@@ -1,23 +1,131 @@
 import math
 
+class Decision:
+    def __init__(self, feature, label):
+        self.feature = feature
+        self.label = label
+
 class DecisionNode:
     numberOfDecisions = 0
+    layersForDecisions = []
+    countsForDecisions = []
     decisions = []
     def __init__(self, numberOfDecisions):
-        self.numberOfDecisions = numberOfDecisions
+        self.numberOfDecisions = numberOfDecisions + 1 #total count, not indexed number
+        self.layersForDecisions = []
+        self.countsForDecisions = []
+        self.decisions = []
+        for i in range(self.numberOfDecisions):
+            self.countsForDecisions.append(0)
+
+    def addLayerForDecision(self, layer):
+        self.layersForDecisions.append(layer)
 
 
 
 class DecisionLayer:
-    nodes = []
-    def __init__(self, nodes):
+
+    def __init__(self, nodes, features, labels):
+        if (len(features) == 0):
+            return
+        self.features = features
+        self.labels = labels
+        self.numberOfLabels = int(max(labels)) + 1 if len(labels) > 0 else 0
         self.nodes = nodes
+        if len(features[0]) == 1:
+            self.finalDecisions = self.calculateFinalDecision()
+            return
+        self.setupFeatureDataForDecisions()
+        self.branchIndex = self.calculateBranch()
+        self.partitionForBranch()
+
+    def setupFeatureDataForDecisions(self):
+        for i in range(len(self.features)):
+            for j in range(len(self.features[i])):
+                currDecisions = self.nodes[j].decisions
+                currDecisions.append(Decision(self.features[i][j], self.labels[i]))
+                # self.nodes[j].countsForDecisions[int(self.features[i][j])] += 1
+
+    def calculateBranch(self):
+        decisionsInfo = []
+        for node in self.nodes:
+            totalForDecisions = len(node.decisions)
+            nodefeaturesForEachLabel = []
+            for i in range(self.numberOfLabels):
+                nodefeaturesForEachLabel.append([])
+            for decision in node.decisions:
+                nodefeaturesForEachLabel[int(decision.label)].append(decision.feature)
+            logSum = 0
+            for labelDivision, i in zip(nodefeaturesForEachLabel, range(len(nodefeaturesForEachLabel))):
+                labelCounts = []
+                for j in range(node.numberOfDecisions):
+                    labelCounts.append(0)
+                for feature in labelDivision:
+                    labelCounts[int(feature)] += 1
+                instanceOverTotal = len(labelDivision)/totalForDecisions
+                for j in range(node.numberOfDecisions):
+                    labelCountOverInstance = (labelCounts[j]/len(nodefeaturesForEachLabel[i])) if (len(nodefeaturesForEachLabel[i]) != 0) else 0
+                    logSum += instanceOverTotal * (-1) * labelCountOverInstance * math.log(labelCountOverInstance , 2) if labelCountOverInstance != 0 else 0
+            decisionsInfo.append(logSum)
+        minValue = min(decisionsInfo)
+        bestInfoIndex = 0
+        for i in range(len(decisionsInfo)):
+            if minValue == decisionsInfo[i]:
+                bestInfoIndex = i
+        return bestInfoIndex
+
+    def calculateFinalDecision(self):  #TODO: Check functionality
+        labelCountsForEachFeature = []
+        for i in range(self.nodes[0].numberOfDecisions):
+            labelCountsForEachFeature.append([])
+            for j in range(self.numberOfLabels):
+                labelCountsForEachFeature[i].append(0)
+        for feature, i in zip(self.features, range(len(self.features))):
+            for label, j in zip(self.labels, range(len(self.features))):
+                labelCountsForEachFeature[int(feature[0])][int(label)] += 1
+        finalDecisions = []
+        for i in range(len(labelCountsForEachFeature)):
+            bestLabel = 0
+            for j in range(len(labelCountsForEachFeature[i])):
+                if labelCountsForEachFeature[i][j] > labelCountsForEachFeature[i][bestLabel]:
+                    bestLabel = j
+            finalDecisions.append(bestLabel)
+        return  finalDecisions
+        # for i in range(self.nodes[0].numberOfDecisions):
+        #     for j in range(self.numberOfLabels):
+        #         labelCountsForEachFeature[]
+        # labelCounts = []
+        # for i in range(max(self.labels)):
+        #     labelCounts.append(0)
+        # for feature, label in zip(self.features, self.labels):
+        #     labelCounts[label] += 1
+
+    def partitionForBranch(self):
+        branchNode = self.nodes[self.branchIndex]
+        for decisionIndex in range(branchNode.numberOfDecisions):
+            partitionedFeatures = []
+            partitionedLabels = []
+            for i in range(len(self.features)):
+                feature = []
+                if self.features[i][self.branchIndex] == decisionIndex:
+                    for j in range(len(self.features[i])):
+                        if j != self.branchIndex:
+                            feature.append(self.features[i][j])
+                    partitionedFeatures.append(feature)
+                    partitionedLabels.append(self.labels[i])
+            newNodes = []
+            for i in range(len(self.nodes)):
+                if i != self.branchIndex:
+                    newNodes.append(DecisionNode(self.nodes[i].numberOfDecisions))
+            branchNode.layersForDecisions.append(DecisionLayer(newNodes, partitionedFeatures, partitionedLabels))
+
 
 class DecisionTree:
 
     firstLayer = None
 
     def __init__(self, features, labels):
+        self.nodeCount = 0
         self.features = features
         self.labels = labels
         maxValues = []
@@ -29,14 +137,14 @@ class DecisionTree:
                     maxValues[j] = features[i][j]
         firstNodes = []
         for i in range(len(maxValues)):
-            newNode = DecisionNode(maxValues[i])
+            newNode = DecisionNode(int(maxValues[i]))
             firstNodes.append(newNode)
-        self.firstLayer = DecisionLayer(firstNodes)
-        self.buildTree()
+            self.nodeCount += 1
+        self.firstLayer = DecisionLayer(firstNodes, features, labels)  #builds the tree
 
+    def getDecision(self, feature):
+        i = 4
 
-    def buildTree(self):
-        pass
 
 #
 # class DecisionTree:
