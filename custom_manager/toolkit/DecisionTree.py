@@ -27,6 +27,7 @@ class DecisionLayer:
 
     def __init__(self, nodes, features, labels):
         if (len(features) == 0):
+            self.finalDecisions = [0, 0, 0, 0, 0, 0, 0 ,0]
             return
         self.features = features
         self.labels = labels
@@ -51,13 +52,14 @@ class DecisionLayer:
     def calculateBranch(self):
         decisionsInfo = []
         for node in self.nodes:
-            totalForDecisions = len(node.decisions)
+            totalForDecisions = len(node.decisions)  #OKAY
             nodefeaturesForEachLabel = []
             for i in range(self.numberOfLabels):
                 nodefeaturesForEachLabel.append([])
             for decision in node.decisions:
                 nodefeaturesForEachLabel[int(decision.label)].append(decision.feature)
             logSum = 0
+            temp = 0
             for labelDivision, i in zip(nodefeaturesForEachLabel, range(len(nodefeaturesForEachLabel))):
                 labelCounts = []
                 for j in range(node.numberOfDecisions):
@@ -66,8 +68,23 @@ class DecisionLayer:
                     labelCounts[int(feature)] += 1
                 instanceOverTotal = len(labelDivision)/totalForDecisions
                 for j in range(node.numberOfDecisions):
-                    labelCountOverInstance = (labelCounts[j]/len(nodefeaturesForEachLabel[i])) if (len(nodefeaturesForEachLabel[i]) != 0) else 0
-                    logSum += instanceOverTotal * (-1) * labelCountOverInstance * math.log(labelCountOverInstance , 2) if labelCountOverInstance != 0 else 0
+                    pNum = labelCounts[j]
+                    pDenom = len(labelDivision)
+                    infoS = (0-1) * (pNum/pDenom) * math.log(pNum/pDenom,2) if (pNum != 0 and pDenom != 0) else 0
+                    logSum += infoS
+                    temp += infoS
+                    i = 4
+                    # Si = labelDivision[j]
+                    # S =  totalForDecisions
+                    # pNum = labelCounts[j]
+                    # pDenom = len(labelDivision)
+                    # infoS = -pNum/pDenom*math.log(pNum/pDenom,2) if pNum != 0 else 0
+                    # tempInfo = (Si/S) * infoS
+                    # logSum += tempInfo
+                    # labelCountOverInstance = (labelCounts[j]/len(nodefeaturesForEachLabel[i])) if (len(nodefeaturesForEachLabel[i]) != 0) else 0
+                    # addMe = instanceOverTotal * (-1) * labelCountOverInstance * math.log(labelCountOverInstance , 2) if labelCountOverInstance != 0 else 0
+                    # logSum += addMe
+            logSum = logSum * instanceOverTotal
             decisionsInfo.append(logSum)
         minValue = min(decisionsInfo)
         bestInfoIndex = 0
