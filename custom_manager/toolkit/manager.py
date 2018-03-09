@@ -108,7 +108,7 @@ class MLSystemManager:
             features = Matrix(data, 0, 0, data.rows, data.cols-1)
             labels = Matrix(data, 0, data.cols-1, data.rows, 1)
 
-            #features.shuffle(labels)
+            features.shuffle(labels)
 
             split70Length = int(features.rows * .70)
             split30Length = int(features.rows * .30)
