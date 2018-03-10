@@ -28,6 +28,7 @@ class DecisionLayer:
     def __init__(self, nodes, features, labels):
         self.finalDecisions = None
         if (len(features) == 0):
+            self.finalDecisions = [0,1,2]
             return
         self.features = features
         self.labels = labels
@@ -90,22 +91,7 @@ class DecisionLayer:
         return bestInfoGainIndex
 
     def calculateFinalDecision(self):  #TODO: Check functionality
-        labelCountsForEachFeature = []
-        for i in range(self.nodes[0].numberOfDecisions):
-            labelCountsForEachFeature.append([])
-            for j in range(self.numberOfLabels):
-                labelCountsForEachFeature[i].append(0)
-        for feature, i in zip(self.features, range(len(self.features))):
-            for label, j in zip(self.labels, range(len(self.features))):
-                labelCountsForEachFeature[int(feature[0])][int(label)] += 1
-        finalDecisions = []
-        for i in range(len(labelCountsForEachFeature)):
-            bestLabel = 0
-            for j in range(len(labelCountsForEachFeature[i])):
-                if labelCountsForEachFeature[i][j] > labelCountsForEachFeature[i][bestLabel]:
-                    bestLabel = j
-            finalDecisions.append(bestLabel)
-        return finalDecisions
+
 
     def partitionForBranch(self):
         branchNode = self.nodes[self.branchIndex]
@@ -125,15 +111,25 @@ class DecisionLayer:
                 if i != self.branchIndex:
                     newNodes.append(DecisionNode(self.nodes[i].numberOfDecisions - 1))
             branchNode.layersForDecisions.append(DecisionLayer(newNodes, partitionedFeatures, partitionedLabels))
+
     def getDecision(self, feature):
         if self.finalDecisions != None:
-            return self.finalDecisions[int(feature[int(self.branchIndex)])]
+            checkList = [0, 0, 0, 0, 0, 0]
+            mostCommonIndex = 0
+            for i in range(len(feature)):
+                checkList[int(feature[i])] += 1
+            for i in range(len(checkList)):
+                if checkList[i] > checkList[mostCommonIndex]:
+                    mostCommonIndex = i
+            # return self.finalDecisions[int(feature[int(self.branchIndex)])]
+            return self.finalDecisions[int(mostCommonIndex)]
         else:
             partitionedFeature = []
             for i in range(len(feature)):
                 if i != self.branchIndex:
                     partitionedFeature.append(feature[i])
-            return self.getDecision(partitionedFeature)
+            return self.nodes[int(self.branchIndex)].layersForDecisions[int(feature[int(self.branchIndex)])].getDecision(partitionedFeature)
+            # return self.getDecision(partitionedFeature)
 
 class DecisionTree:
 
@@ -158,4 +154,4 @@ class DecisionTree:
         self.firstLayer = DecisionLayer(firstNodes, features, labels)  #builds the tree
 
     def getDecision(self, feature):
-        return  self.firstLayer.getDecision(feature)
+        return self.firstLayer.getDecision(feature)
