@@ -12,7 +12,7 @@ class Node:
     isBias = None
     delta = None
     fPrimeNet = None
-    momentum = 0
+    momentum = .7
 
 
     def __init__(self, isBias):
