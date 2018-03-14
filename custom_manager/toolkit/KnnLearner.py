@@ -4,9 +4,15 @@ from KNearestNeighbor import KNearestNeighbor
 class InstanceBasedLearner(SupervisedLearner):
 
     knn= None
+    k = 3
 
     def __init__(self):
         pass
 
-    def predict(self, features, labels):
+    def train(self, features, labels):
         self.knn = KNearestNeighbor(features, labels)
+
+    def predict(self, row, labels):
+        self.knn.calculateDistancesForDataRow(row)
+        prediction = self.knn.nearestNeighborVote(self.k, row)
+        labels.append(prediction)
