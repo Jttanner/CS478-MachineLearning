@@ -28,7 +28,8 @@ class KNearestNeighbor:
         self.features = np.array(self.features)
         self.labels = np.array(self.features)
         self.distancesInOrder = []
-        self.distances = []
+        self.distances = np.array
+
 
     def insertForDistances(self, newEntry, index):
         newDistanceData = DistanceData(index, newEntry)
@@ -48,15 +49,12 @@ class KNearestNeighbor:
                         self.distances.insert(i, newDistanceData)
 
     def calculateDistancesForDataRow(self, row):
-        self.distances = []
-        self.distancesInOrder = []
-        for feature, rowNumber in zip(self.features, range(len(self.features))):  #each entry
-            distance = 0
-            for i in range(len(row)):  #each attribute
-                distance += (feature[i] - row[i])**2  #Euclidean
-                #distance += abs(feature[i] - row[i])  #Manhattan
-            distance = math.sqrt(distance)
-            self.insertForDistances(distance, rowNumber)
+        row = np.array(row)
+        row = row[np.newaxis, :]
+        differences = self.features - row
+        distances = np.sum(differences**2, axis = 1)
+        print(distances)
+        np.append(self.distances, distances)
 
     def nearestNeighborVote(self, row):
         if self.regression:
