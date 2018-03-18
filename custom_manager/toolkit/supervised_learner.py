@@ -71,7 +71,7 @@ class SupervisedLearner:
 
             correct_count = 0
             prediction = []
-            #mses = []
+            mses = []
             for i in range(features.rows):
                 feat = features.row(i)
                 targ = int(labels.get(i, 0))
@@ -79,10 +79,11 @@ class SupervisedLearner:
                     raise Exception("The label is out of range")
                 self.predict(feat, prediction)
                 pred = int(prediction[i])
-                # currNetwork = self.network
-                # sse = 0
-                # #outputTargets = [1,0,0] if targ[0] == 0 else [0,1,0] if targ[0] == 1 else [0,0,1]
-                # outputTargets = []
+                #currNetwork = self.network
+                currKnn = self.knn
+                sse = 0
+                #outputTargets = [1,0,0] if targ[0] == 0 else [0,1,0] if targ[0] == 1 else [0,0,1]
+                #outputTargets = []
                 # for i in range(11):
                 #     if i == targ:
                 #         outputTargets.append(1)
@@ -91,15 +92,16 @@ class SupervisedLearner:
                 # for outputNode, outputTarget in zip(currNetwork.outputs, outputTargets):
                 #     sse += (outputTarget - outputNode.output)**2
                 # mses.append(sse/len(outputTargets))
+                mses.append((prediction[i] - currKnn.labels[i])**2)
                 if confusion:
                     confusion.set(targ, pred, confusion.get(targ, pred)+1)
                 if pred == targ:
                     correct_count += 1
-            # totalMse = 0
-            # for mse in mses:
-            #     totalMse += mse
-            # totalMse = totalMse/len(mses)
-            # print('test mse: ' + str(totalMse))
+            totalMse = 0
+            for mse in mses:
+                totalMse += mse
+            totalMse = totalMse/len(mses)
+            print('test mse: ' + str(totalMse))
 
 
 

@@ -33,7 +33,10 @@ class DecisionLayer:
         # self.treeDepth[0] += 1
         self.nodeCount[0] += len(nodes)
         self.finalDecisions = None
-        if (len(features) == 0):
+        if self.nodeCount[0] > 5400 :
+            self.finalDecisions = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]
+            return
+        if (len(features) == 0 ):
             baseFinalDecisions = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]
             for i in range(len(nodeIfNoDecisions.decisions)):
                 baseFinalDecisions[int(nodeIfNoDecisions.decisions[i].label)][int(nodeIfNoDecisions.decisions[i].feature)] += 1
@@ -179,18 +182,18 @@ class DecisionTree:
         self.firstLayer = DecisionLayer(firstNodes, features, labels, None)  #builds the tree
 
     def getDecision(self, feature):
-        branchIndex = self.firstLayer.branchIndex
-        firstSplitNode = self.firstLayer.nodes[branchIndex]
-        splitLayerForFeature =  firstSplitNode.layersForDecisions[int(feature[branchIndex])]
-        secondBranchIndex = splitLayerForFeature.branchIndex
-        secondSplitNode = splitLayerForFeature.nodes[secondBranchIndex]
-        secondSplitLayerForFeature = secondSplitNode.layersForDecisions[int(feature[secondBranchIndex])]
-        thirdBranchIndex = secondSplitLayerForFeature.branchIndex
-        thirdSplitNode = secondSplitLayerForFeature.nodes[thirdBranchIndex]
-        thirdSplitLayerForFeature = thirdSplitNode.layersForDecisions[int(feature[thirdBranchIndex])]
-        labelCounts = [0,0,0,0]
-        for label in splitLayerForFeature.labels:
-            labelCounts[int(label)] += 0
+        # branchIndex = self.firstLayer.branchIndex
+        # firstSplitNode = self.firstLayer.nodes[branchIndex]
+        # splitLayerForFeature =  firstSplitNode.layersForDecisions[int(feature[branchIndex])]
+        # secondBranchIndex = splitLayerForFeature.branchIndex
+        # secondSplitNode = splitLayerForFeature.nodes[secondBranchIndex]
+        # secondSplitLayerForFeature = secondSplitNode.layersForDecisions[int(feature[secondBranchIndex])]
+        # thirdBranchIndex = secondSplitLayerForFeature.branchIndex
+        # thirdSplitNode = secondSplitLayerForFeature.nodes[thirdBranchIndex]
+        # thirdSplitLayerForFeature = thirdSplitNode.layersForDecisions[int(feature[thirdBranchIndex])]
+        # labelCounts = [0,0,0,0]
+        # for label in splitLayerForFeature.labels:
+        #     labelCounts[int(label)] += 0
         # for label in secondSplitLayerForFeature.labels:
         #     labelCounts[int(label)] += 0
         # if thirdSplitLayerForFeature.finalDecisions == None:
@@ -201,11 +204,11 @@ class DecisionTree:
         #         for j in range(len(thirdSplitLayerForFeature.finalDecisions[i])):
         #             if thirdSplitLayerForFeature.finalDecisions[i][j] != 0:
         #                 return j
-        bestLabel = 0
-        for i in range(len(labelCounts)):
-            if labelCounts[i] > labelCounts[bestLabel]:
-                bestLabel = i
-        return bestLabel
+        # bestLabel = 0
+        # for i in range(len(labelCounts)):
+        #     if labelCounts[i] > labelCounts[bestLabel]:
+        #         bestLabel = i
+        # return bestLabel
 
 
         # above is the shallow classification finder

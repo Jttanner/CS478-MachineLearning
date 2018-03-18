@@ -24,3 +24,45 @@ class InstanceBasedLearner(SupervisedLearner):
         # Training set accuracy: 1.0
         # Test set accuracy: 0.7856285628562857
 
+    # no weights regression on housing
+    # Dataset
+    # name: knnData / housingTraining.arff
+    # Number
+    # of
+    # instances: 12354
+    # Number
+    # of
+    # attributes: 11
+    # Learning
+    # algorithm: knn
+    # Evaluation
+    # method: static
+    #
+    # Calculating
+    # accuracy
+    # on
+    # separate
+    # test
+    # set...
+    # Test
+    # set
+    # name: knnData / housingTest.arff
+    # Number
+    # of
+    # test
+    # instances: 6666
+    # Time
+    # to
+    # train( in seconds): 0.02707386016845703
+    # Backend
+    # TkAgg is interactive
+    # backend.Turning
+    # interactive
+    # mode
+    # on.
+    # Training
+    # set
+    # accuracy: 0.6452161243322001
+    # Test
+    # set
+    # accuracy: 0.4825982598259826

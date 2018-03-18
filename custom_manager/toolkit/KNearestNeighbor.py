@@ -15,6 +15,7 @@ class KNearestNeighbor:
     labels = []
     distancesInOrder = []
     distances = []
+    regression = True
 
     def __init__(self, features, labels, k):
         self.k = k
@@ -55,14 +56,21 @@ class KNearestNeighbor:
             self.insertForDistances(distance, rowNumber)
 
     def nearestNeighborVote(self, row):
-        votes = []
-        for i in range(len(row)):
-            votes.append(0)
-        for i in range(self.k):
-            index = self.distances[i].originalIndex
-            votes[int(self.labels[index])] += 1
-        bestVoteIndex = 0
-        for i in range(len(votes)):
-            if votes[i] > votes[bestVoteIndex]:
-                bestVoteIndex = i
-        return bestVoteIndex
+        if self.regression:
+            distanceLabelSum = 0
+            for i in range(self.k):
+                distanceLabelSum += self.labels[int(self.distances[i].distance)]
+            distanceLabelMean = distanceLabelSum / self.k
+            return  distanceLabelMean
+        else:
+            votes = []
+            for i in range(len(row)):
+                votes.append(0)
+            for i in range(self.k):
+                index = self.distances[i].originalIndex
+                votes[int(self.labels[index])] += 1
+            bestVoteIndex = 0
+            for i in range(len(votes)):
+                if votes[i] > votes[bestVoteIndex]:
+                    bestVoteIndex = i
+            return bestVoteIndex
