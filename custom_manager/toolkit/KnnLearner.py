@@ -21,48 +21,11 @@ class InstanceBasedLearner(SupervisedLearner):
 
 
         # No weights magic telescope
-        # Training set accuracy: 1.0
-        # Test set accuracy: 0.7856285628562857
+        # Training set accuracy: 0.8797150720414441
+        # Test set accuracy: 0.8082808280828083
 
-    # no weights regression on housing
-    # Dataset
-    # name: knnData / housingTraining.arff
-    # Number
-    # of
-    # instances: 12354
-    # Number
-    # of
-    # attributes: 11
-    # Learning
-    # algorithm: knn
-    # Evaluation
-    # method: static
-    #
-    # Calculating
-    # accuracy
-    # on
-    # separate
-    # test
-    # set...
-    # Test
-    # set
-    # name: knnData / housingTest.arff
-    # Number
-    # of
-    # test
-    # instances: 6666
-    # Time
-    # to
-    # train( in seconds): 0.02707386016845703
-    # Backend
-    # TkAgg is interactive
-    # backend.Turning
-    # interactive
-    # mode
-    # on.
-    # Training
-    # set
-    # accuracy: 0.6452161243322001
-    # Test
-    # set
-    # accuracy: 0.4825982598259826
+        # No weights housing
+        # Training Set: 0.8122875182127246
+        # Training MSE: 0.07929055816379461
+        # Test Set: 0.7770777077707771
+        # Test MSE: 0.36331966529985876
