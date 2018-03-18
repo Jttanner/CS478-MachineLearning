@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 class DistanceData:
 
@@ -24,6 +25,8 @@ class KNearestNeighbor:
         for i in range(features.rows):
             self.features.append(features.row(i))
             self.labels.append(labels.row(i)[0])
+        self.features = np.array(self.features)
+        self.labels = np.array(self.features)
         self.distancesInOrder = []
         self.distances = []
 
