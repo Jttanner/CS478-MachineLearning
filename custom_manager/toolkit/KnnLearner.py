@@ -22,7 +22,15 @@ class InstanceBasedLearner(SupervisedLearner):
 
         # No weights magic telescope
         # Training set accuracy: 0.8797150720414441
+        # training mse: 0.12028492795855593
         # Test set accuracy: 0.8082808280828083
+        # test mse?: 0.42934293429342935
+
+        # Weights magic Telescope
+        # Training acc: 0.838675732556257
+        # Training MSE: 0.16132426744374292
+        # Test acc:  0.4453945394539454
+        # test MSE: 0.770927092709271
 
         # No weights housing
         # Training Set: 0.8122875182127246

@@ -31,6 +31,7 @@ class KNearestNeighbor:
         self.distancesInOrder = []
         self.distances = []
         self.currRowNumber = 0
+        self.weights = []
 
     def calculateDistancesForDataRow(self, row):
         row = np.array(row)
@@ -39,13 +40,25 @@ class KNearestNeighbor:
         self.distances = np.sum(differences**2, axis = 1)
 
     def nearestNeighborVote(self, row):
-        kNearestDistanceIndexs = np.argpartition(self.distances, self.k)
+        kNearestDistanceIndexs = np.argpartition(self.distances, self.k )
         kNearestDistanceIndexs = kNearestDistanceIndexs[:self.k]
         votes = self.labels[kNearestDistanceIndexs]
+        self.weights = 1 / (kNearestDistanceIndexs[:self.k] ** 2)
         if self.regression:
-            mean = np.mean(votes)
-            return mean
+            prediction = votes * self.weights
+            prediction = np.sum(prediction, axis=0)
+            prediction = prediction / np.sum(self.weights, axis=0)
+            return prediction if not math.isnan(prediction) else 0
+            # mean = np.mean(votes)
+            # return mean
         else:
-            mode = stats.mode(votes)[0][0]
-            return mode
+            labelCounts = [0,0]
+            for x in np.nditer(votes):
+                labelCounts[int(x)] += self.weights[int(x)]
+            if labelCounts[0] > labelCounts[1]:
+                return 0
+            else:
+                return 1
+            # mode = stats.mode(votes)
+            # return mode
 

@@ -57,11 +57,12 @@ class SupervisedLearner:
             for i in range(features.rows):
                 feat = features.row(i)
                 targ = labels.row(i)
-                pred[0] = 0.0       # make sure the prediction is not biased by a previous prediction
+                #pred[0] = 0.0       # make sure the prediction is not biased by a previous prediction
                 self.predict(feat, pred)
                 delta = targ[0] - pred[0]
                 sse += delta**2
-            return math.sqrt(sse / features.rows)
+            # return math.sqrt(sse / features.rows)
+            return sse / features.rows
 
         else:
             # label is nominal, so measure predictive accuracy
