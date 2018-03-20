@@ -50,8 +50,9 @@ class SupervisedLearner:
             raise Exception("Expected at least one row")
 
         label_values_count = labels.value_count(0)
-        if label_values_count == 0:
+        # if label_values_count == 0:
             # label is continuous
+        if self.regression:  #force mse calc
             pred = []
             sse = 0.0
             for i in range(features.rows):
@@ -59,10 +60,10 @@ class SupervisedLearner:
                 targ = labels.row(i)
                 #pred[0] = 0.0       # make sure the prediction is not biased by a previous prediction
                 self.predict(feat, pred)
-                delta = targ[0] - pred[0]
+                delta = targ[0] - pred[i]
                 sse += delta**2
-            # return math.sqrt(sse / features.rows)
-            return sse / features.rows
+            #return math.sqrt(sse / features.rows)**2
+            return (sse / features.rows)**2
 
         else:
             # label is nominal, so measure predictive accuracy
@@ -102,7 +103,7 @@ class SupervisedLearner:
             for mse in mses:
                 totalMse += mse
             totalMse = totalMse/len(mses)
-            print('test mse: ' + str(totalMse))
+            # print('test mse: ' + str(totalMse))
 
 
 
