@@ -4,9 +4,9 @@ from KNearestNeighbor import KNearestNeighbor
 class InstanceBasedLearner(SupervisedLearner):
 
     knn= None
-    k = 3
+    k = 15
     rowsPredicted = 0
-    regression = True
+    regression = False
 
     def __init__(self):
         pass

@@ -74,6 +74,44 @@ class MLSystemManager:
         else:
             raise Exception("Unrecognized model: {}".format(model))
 
+    def staticEval(self, eval_parameter, normalize, learner, data, test_data, print_confusion_matrix, deleteIndex):
+        print("Calculating accuracy on separate test set...")
+
+
+
+        print("Test set name: {}".format(eval_parameter))
+        print("Number of test instances: {}".format(test_data.rows))
+        features = Matrix(data, 0, 0, data.rows, data.cols - 1)
+        labels = Matrix(data, 0, data.cols - 1, data.rows, 1)
+
+        if deleteIndex != None:
+            features.deleteColumn(deleteIndex)
+            labels.deleteColumn(deleteIndex)
+
+        start_time = time.time()
+        learner.train(features, labels)
+        elapsed_time = time.time() - start_time
+        print("Time to train (in seconds): {}".format(elapsed_time))
+
+        # train_accuracy = learner.measure_accuracy(features, labels)
+        # print("Training set accuracy: {}".format(train_accuracy))
+
+        test_features = Matrix(test_data, 0, 0, test_data.rows, test_data.cols - 1)
+        test_labels = Matrix(test_data, 0, test_data.cols - 1, test_data.rows, 1)
+        if deleteIndex != None:
+            test_features.deleteColumn(deleteIndex)
+            test_labels.deleteColumn(deleteIndex)
+        confusion = Matrix()
+        test_accuracy = learner.measure_accuracy(test_features, test_labels, confusion)
+        print("Test set accuracy: {}".format(test_accuracy))
+        print("NotSquared:" + str(math.sqrt(test_accuracy)))
+
+        if print_confusion_matrix:
+            print("\nConfusion matrix: (Row=target value, Col=predicted value)")
+            confusion.print()
+            print("")
+        return  .90, test_accuracy
+
     def main(self):
         # parse the command-line arguments
         args = self.parser().parse_args()
@@ -139,37 +177,48 @@ class MLSystemManager:
                 print("")
 
         elif eval_method == "static":
-
-            print("Calculating accuracy on separate test set...")
-
+            lastTestAccuracy = 0
+            baseTrainAccuracy = 0
+            baseTestAccuracy = 0
+            lastFeatures = None
+            lastLabels = None
+            lastTestFeatures = None
+            lastTestLabels = None
             test_data = Matrix(arff=eval_parameter)
+            cutIndexes = []
             if normalize:
                 test_data.normalize()
+            print("no Cutting")
+            baseTrainAccuracy, baseTestAccuracy = self.staticEval(eval_parameter, normalize, learner, data, test_data, print_confusion_matrix, None)
+            # for i in range(10):
+            #     print("Iteration:" + str(i))
+            #     if normalize:
+            #         print("Using normalized data")
+            #         data.normalize()
+            #
+            #     trainAccuracy = 0
+            #     testAccuracy = 0
+            #     bestCutIndex = None
+            #     for j in range(10):
+            #         print("Iteration:" + str(i) + " + sub-iteration:" + str(j))
+            #         print()
+            #         test_data = Matrix(arff=eval_parameter)
+            #         data = Matrix()
+            #         data.load_arff(file_name)
+            #         for k in range(len(cutIndexes)):
+            #             data.deleteColumn(cutIndexes[i])
+            #             test_data.deleteColumn(cutIndexes[i])
+            #         data.deleteColumn(j)
+            #         test_data.deleteColumn(j)
+            #         trainAccuracy, testAccuracy = self.staticEval(eval_parameter, normalize, learner, data, test_data, print_confusion_matrix, j)
+            #         if((testAccuracy - lastTestAccuracy) > 0):
+            #             bestCutIndex = j
+            #             lastTestAccuracy = testAccuracy
+            #     cutIndexes.append(bestCutIndex)
+            #     if baseTestAccuracy - testAccuracy < .05:
+            #         print("Last accuracy difference too poor.  breaking.")
+            #         break
 
-            print("Test set name: {}".format(eval_parameter))
-            print("Number of test instances: {}".format(test_data.rows))
-            features = Matrix(data, 0, 0, data.rows, data.cols-1)
-            labels = Matrix(data, 0, data.cols-1, data.rows, 1)
-
-            start_time = time.time()
-            learner.train(features, labels)
-            elapsed_time = time.time() - start_time
-            print("Time to train (in seconds): {}".format(elapsed_time))
-
-            train_accuracy = learner.measure_accuracy(features, labels)
-            print("Training set accuracy: {}".format(train_accuracy))
-
-            test_features = Matrix(test_data, 0, 0, test_data.rows, test_data.cols-1)
-            test_labels = Matrix(test_data, 0, test_data.cols-1, test_data.rows, 1)
-            confusion = Matrix()
-            test_accuracy = learner.measure_accuracy(test_features, test_labels, confusion)
-            print("Test set accuracy: {}".format(test_accuracy))
-            print("NotSquared:" + str(math.sqrt(test_accuracy)))
-
-            if print_confusion_matrix:
-                print("\nConfusion matrix: (Row=target value, Col=predicted value)")
-                confusion.print()
-                print("")
 
         elif eval_method == "random":
 
@@ -215,6 +264,7 @@ class MLSystemManager:
                 raise Exception("Number of folds must be greater than 0")
             print("Number of folds: {}".format(folds))
             reps = 1
+            deleteIndexes = []
             sum_accuracy = 0.0
             elapsed_time = 0.0
             for j in range(reps):

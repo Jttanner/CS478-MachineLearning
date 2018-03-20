@@ -24,8 +24,9 @@ class KNearestNeighbor:
         self.features = []
         self.labels = []
         for i in range(features.rows):
-            self.features.append(features.row(i))
-            self.labels.append(labels.row(i)[0])
+            if i != 0:
+                self.features.append(features.row(i))
+                self.labels.append(labels.row(i)[0])
         featureMaxes = []
         featureMins = []
         # for i in range(features.cols):  #normalize
@@ -47,6 +48,60 @@ class KNearestNeighbor:
         self.distances = []
         self.currRowNumber = 0
         self.weights = []
+        for row, i in zip(self.features, range(len(self.features))):
+            if i == len(self.features):
+                break
+            i -= 1
+            originalFeatures = np.copy(self.features)
+            originalLabels = np.copy(self.labels)
+            try:
+                self.features = np.delete(self.features, i, axis=0)
+                self.labels = np.delete(self.labels, i, axis=0)
+                self.calculateDistancesForDataRow(row)
+                winningVote = self.nearestNeighborVote(row)
+                if winningVote == self.labels[i]:
+                    originalFeatures = np.delete(originalFeatures, i, axis=0)
+                    originalLabels = np.delete(originalLabels, i, axis=0)
+                else:
+                    i += 1
+                self.features = originalFeatures
+                self.labels = originalLabels
+            except:
+                break
+
+
+
+        ######################################
+        # BAD REDUCTION TACTIC.  DIDN'T WORK #
+        ######################################
+        # usedToDeleteIndexes = []
+        # deleteIndexes = []
+        # for row, i in zip(self.features, range(len(self.features))):
+        #     self.calculateDistancesForDataRow(row)
+        #     d = 2
+        #     try:
+        #         smallestIndexs = np.argpartition(self.distances, d)[:d]
+        #     except:
+        #         i = 4
+        #     smallestValues = (self.distances[smallestIndexs])
+        #
+        #     meanDistance = np.mean(self.distances)
+        #     # print(smallestIndexs)
+        #     # print(smallestValues)
+        #     for j in range(len(smallestValues)):
+        #         for k in range(len(smallestValues)):
+        #             if j != k:
+        #                 if self.labels[j] == self.labels[k]:
+        #                     if (smallestIndexs[k] not in deleteIndexes) and (smallestIndexs[k] not in usedToDeleteIndexes):
+        #                         if smallestValues[j] - smallestValues[k] < abs(.0000000001):
+        #                             deleteIndexes.append(smallestIndexs[k])
+        #                             if smallestIndexs[j] not in usedToDeleteIndexes:
+        #                                 usedToDeleteIndexes.append(smallestIndexs[j])
+        #             # print(self.labels[j])
+        # self.features = np.delete(self.features, deleteIndexes, axis=0) if deleteIndexes != [] else self.features
+        #     # for index in deleteIndexes:
+        #     #     self.features = np.delete(self.features, index, axis=0)
+
 
     def calculateDistancesForDataRow(self, row):
         #True is cont, False is nominal
@@ -55,10 +110,10 @@ class KNearestNeighbor:
         row = row[np.newaxis, :]
         differences = self.features - row
         differences[differences == 0.0] = .000000001
-        differences[differences == math.inf ] = 1  #if x or y is unknown
-        differences[differences > 1.0] = 1 # 0 if x=y, 1 otherwise for nominal.
-        self.distances = np.sqrt(np.sum(differences ** 2, axis=1)) #HEOM
-        # self.distances = np.sum(differences**2, axis = 1)  #Eucilidean
+        # differences[differences == math.inf ] = 1  #if x or y is unknown
+        # differences[differences > 1.0] = 1 # 0 if x=y, 1 otherwise for nominal.
+        # self.distances = np.sqrt(np.sum(differences ** 2, axis=1)) #HEOM
+        self.distances = np.sum(differences**2, axis = 1)  #Eucilidean
 
     def nearestNeighborVote(self, row):
         kNearestDistanceIndexs = np.argpartition(self.distances, self.k)
