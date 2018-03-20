@@ -6,7 +6,7 @@ class InstanceBasedLearner(SupervisedLearner):
     knn= None
     k = 3
     rowsPredicted = 0
-    regression = False
+    regression = True
 
     def __init__(self):
         pass

@@ -49,11 +49,16 @@ class KNearestNeighbor:
         self.weights = []
 
     def calculateDistancesForDataRow(self, row):
+        #True is cont, False is nominal
+        featureTypes = [False, True, True, False, False, False, False, True, False, False, True, False, False, True, True]
         row = np.array(row)
         row = row[np.newaxis, :]
         differences = self.features - row
         differences[differences == 0.0] = .000000001
-        self.distances = np.sum(differences**2, axis = 1)
+        differences[differences == math.inf ] = 1  #if x or y is unknown
+        differences[differences > 1.0] = 1 # 0 if x=y, 1 otherwise for nominal.
+        self.distances = np.sqrt(np.sum(differences ** 2, axis=1)) #HEOM
+        # self.distances = np.sum(differences**2, axis = 1)  #Eucilidean
 
     def nearestNeighborVote(self, row):
         kNearestDistanceIndexs = np.argpartition(self.distances, self.k)
