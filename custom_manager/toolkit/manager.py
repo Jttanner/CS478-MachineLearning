@@ -156,8 +156,8 @@ class MLSystemManager:
             elapsed_time = time.time() - start_time
             print("Time to train (in seconds): {}".format(elapsed_time))
 
-            # train_accuracy = learner.measure_accuracy(features, labels)
-            # print("Training set accuracy: {}".format(train_accuracy))
+            train_accuracy = learner.measure_accuracy(features, labels)
+            print("Training set accuracy: {}".format(train_accuracy))
 
             test_features = Matrix(test_data, 0, 0, test_data.rows, test_data.cols-1)
             test_labels = Matrix(test_data, 0, test_data.cols-1, test_data.rows, 1)
