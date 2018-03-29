@@ -69,6 +69,12 @@ class Matrix:
         self.enum_to_str = matrix.enum_to_str[col_start:col_start+col_count]    # array of dictionaries
         return self
 
+    def deleteColumn(self, deleteIndex):
+        for row in self.data:
+            del row[deleteIndex]
+        #self.cols -= 1
+        return self
+
     def add(self, matrix, row_start, col_start, col_count):
         """Appends a copy of the specified portion of a matrix to this matrix"""
         if __debug__ and self.cols < col_count:
