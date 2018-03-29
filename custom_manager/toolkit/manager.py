@@ -12,6 +12,7 @@ from PerceptronLearner import PerceptronLearner
 from BackpropagationLearner import BackpropagationLearner
 from DecisionTreeLearner import DecisionTreeLearner
 from KnnLearner import InstanceBasedLearner
+from ClusteringLearner import ClusteringLearner
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -67,7 +68,8 @@ class MLSystemManager:
             "perceptron": PerceptronLearner(),
             "neuralnet": BackpropagationLearner(),
             "decisiontree": DecisionTreeLearner(),
-            "knn": InstanceBasedLearner()
+            "knn": InstanceBasedLearner(),
+            "clustering": ClusteringLearner()
         }
         if model in modelmap:
             return modelmap[model]
@@ -303,7 +305,7 @@ class MLSystemManager:
         parser.add_argument('-V', '--verbose', action='store_true', help='Print the confusion matrix and learner accuracy on individual class values')
         parser.add_argument('-N', '--normalize', action='store_true', help='Use normalized data')
         parser.add_argument('-R', '--seed', help="Random seed") # will give a string
-        parser.add_argument('-L', required=True, choices=['baseline', 'perceptron', 'neuralnet', 'decisiontree', 'knn'], help='Learning Algorithm')
+        parser.add_argument('-L', required=True, choices=['baseline', 'perceptron', 'neuralnet', 'decisiontree', 'knn', 'clustering;'], help='Learning Algorithm')
         parser.add_argument('-A', '--arff', metavar='filename', required=True, help='ARFF file')
         parser.add_argument('-E', metavar=('METHOD', 'args'), required=True, nargs='+', help="Evaluation method (training | static <test_ARFF_file> | random <%%_for_training> | cross <num_folds>)")
 

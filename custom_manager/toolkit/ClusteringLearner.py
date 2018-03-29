@@ -12,6 +12,7 @@ class ClusteringLearner(SupervisedLearner):
 
     def train(self, features, labels):
         self.kMeans = KMeans(features, labels, self.k)
+        self.kMeans.train()
         # self.hac = HAC(features, labels)
 
     def predict(self, features, labels):
