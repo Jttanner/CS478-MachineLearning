@@ -3,8 +3,9 @@ import numpy as np
 
 class KMeans:
 
-    centroidIndexes = None
+    centroids = None
     groups = None
+    forceFirstFourInitialCentroids = True
 
     def __init__(self, features, labels, k):
         self.features = []
@@ -18,48 +19,68 @@ class KMeans:
         self.bestAccuracySoFar = 0
         self.lastAccuarcy = 0
         self.runsWithNoMeaningfulUpdate = 0
-        self.centroidIndexes = []
+        self.centroids = []
         self.groups = []
-        # self.pickInitialRandomCentroids()
 
     def train(self):
         self.pickInitialRandomCentroids()
         self.calculateGroups()
+        lastAccuarcy = 0
         while (self.runsWithNoMeaningfulUpdate < 5):
             self.recalculateCentroids()
             self.groups = []
             self.calculateGroups()
 
+
     def recalculateCentroids(self):
-        pass
+        newCentroids = []
+        for i in range(len(self.groups)):
+            centroid = []
+            for j in range(len(self.groups[i])):
+                centroid.append(0)
+            centroid = np.array(centroid)
+            for j in range(len(self.features)):
+                centroid = centroid + self.features[j]
+            centroid = centroid / len(self.features)
+            newCentroids.append(newCentroids)
+        self.centroids = newCentroids
 
     def pickInitialRandomCentroids(self):
-        for i in range(self.k):
-            randomInitialCentroidIndex = randint()
-            while randomInitialCentroidIndex in self.centroidIndexes:
+        if self.forceFirstFourInitialCentroids:
+            self.centroids.append(self.features[0])
+            self.centroids.append(self.features[1])
+            self.centroids.append(self.features[2])
+            self.centroids.append(self.features[3])
+        else:
+            lastInt = -1
+            for i in range(self.k):
                 randomInitialCentroidIndex = randint()
-            self.centroidIndexes.append(randomInitialCentroidIndex)
+                while randomInitialCentroidIndex == lastInt:
+                    randomInitialCentroidIndex = randint()
+                lastInt = randomInitialCentroidIndex
+                centroid = []
+                for j in range(len(self.features[i])):
+                    centroid.append(self.features[i][j])
+                self.centroids.append(centroid)
 
     # group sets for centroids
     def calculateGroups(self):
         for i in np.nditer(self.features):
-            self.groups.append(self.calculateDistanceToCentroids(self.features[i]))
-            # bestCentroidIndex = self.calculateDistanceToCentroids(self.features[i])
-            # self.groups.append(bestCentroidIndex)
+            self.groups.append(self.features[self.calculateDistanceToCentroids(self.features[i])])
 
     # @return best centroid index
     def calculateDistanceToCentroids(self, feature):
         distances = []
-        for centroidIndex in self.centroidIndexs:
+        for centroid in self.centroids:
             distance = 0
             for i in range(len(feature)):
-                distance += (feature[i] - self.features[centroidIndex][i])**2
+                distance += (feature[i] - centroid[i])**2
             distances.append(distance)
         bestIndex = 0
         for i in range(len(distances)):
             if distances[i] < distances[bestIndex]:
                 bestIndex = i
-        return bestIndex
+        return int(bestIndex)
 
     # features will not be empty
     def calculateAccuracy(self):
@@ -67,6 +88,6 @@ class KMeans:
         total = 0
         for i in np.nditer(self.labels):
             total += 1
-            if self.labels(self.groups[i])[0] == self.labels[i][0]:
+            if self.labels[self.groups[i]][0] == self.labels[i][0]:
                 correct += 1
         return correct / total
