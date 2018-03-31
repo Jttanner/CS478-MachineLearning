@@ -25,12 +25,38 @@ class KMeans:
     def train(self):
         self.pickInitialRandomCentroids()
         self.calculateGroups()
-        lastAccuarcy = 0
-        while (self.runsWithNoMeaningfulUpdate < 5):
+        lastsse = 0
+        iterations = 0
+        converged = False
+        while not converged:
+            print("Iteration: " + str(iterations))
+            print("Caluclating Centroids")
             self.recalculateCentroids()
+            for centroid in self.centroids:
+                print("Centroid :" + str(iterations) + centroid)
             self.groups = []
+            print("Assigning Groups:")
             self.calculateGroups()
+            for i in range(len(self.groups)):
+                print(str(i) + "=" + self.groups[i])
+            sse = self.calculateSSE()
+            if sse == lastsse:
+                converged = True
+            iterations += 1
+        print("SSE has converged.")
+        # currAccuracy = self.calculateAccuracy()
+        # if abs(currAccuracy - lastAccuarcy) < .0001:
+        #     self.runsWithNoMeaningfulUpdate += 1
 
+
+    def calculateSSE(self):
+        sse = 0
+        for i in np.nditer(self.labels):
+            sse += (self.labels[self.groups[i]][0] - self.labels[i][0])**2
+        return sse
+            # total += 1
+            # if self.labels[self.groups[i]][0] == self.labels[i][0]:
+                # correct += 1
 
     def recalculateCentroids(self):
         newCentroids = []
@@ -74,6 +100,8 @@ class KMeans:
         for centroid in self.centroids:
             distance = 0
             for i in range(len(feature)):
+                distanceDelta = 0
+
                 distance += (feature[i] - centroid[i])**2
             distances.append(distance)
         bestIndex = 0
