@@ -4,7 +4,7 @@ from KNearestNeighbor import KNearestNeighbor
 class InstanceBasedLearner(SupervisedLearner):
 
     knn= None
-    k = 15
+    k = 7
     rowsPredicted = 0
     regression = False
 

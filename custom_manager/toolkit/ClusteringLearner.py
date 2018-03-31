@@ -1,5 +1,6 @@
 from supervised_learner import SupervisedLearner
 from KMeans import KMeans
+from matrix import Matrix
 
 class ClusteringLearner(SupervisedLearner):
     """
@@ -17,3 +18,6 @@ class ClusteringLearner(SupervisedLearner):
 
     def predict(self, features, labels):
         pass
+
+learner = ClusteringLearner()
+l

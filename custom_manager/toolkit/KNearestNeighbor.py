@@ -135,15 +135,15 @@ class KNearestNeighbor:
             mean = np.mean(votes)
             return mean
         else:
-            # if self.k == 1:
-            #     return votes[0]
-            # labelCounts = [0,0]
-            # for x in np.nditer(votes):
-            #     labelCounts[int(x)] += self.weights[int(x)]
-            # if labelCounts[0] > labelCounts[1]:
-            #     return 0
-            # else:
-            #     return 1
-            mode = stats.mode(votes)[0][0]
-            return mode
+            if self.k == 1:
+                return votes[0]
+            labelCounts = [0,0]
+            for x in np.nditer(votes):
+                labelCounts[int(x)] += self.weights[int(x)]
+            if labelCounts[0] > labelCounts[1]:
+                return 0
+            else:
+                return 1
+            # mode = stats.mode(votes)[0][0]
+            # return mode
 
