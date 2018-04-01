@@ -4,7 +4,7 @@ import math
 
 class KMeans:
 
-    labelTypes = [0,0,0,0,0,1,0,1,0,0,1,0,1,1,1,1,1]  #0 is real, 1 is nominal
+    labelTypes = [0,0,0,0,1,0,1,0,0,1,0,1,1,1,1,1]  #0 is real, 1 is nominal
     REAL = 0
     NOMINAL = 1
     centroids = None
@@ -15,8 +15,14 @@ class KMeans:
         self.features = []
         self.labels = []
         for i in range(features.rows):
-            self.features.append(features.row(i))
-            self.labels.append(labels.row(i))
+            feature = []
+            label = []
+            for j in range(len(features.row(i))):
+                if j != 0:
+                    feature.append(features.row(i)[j])
+            label.append(labels.row(i))
+            self.features.append(feature)
+            self.labels.append(label)
         self.features = np.array(self.features)
         self.labels = np.array(self.labels)
         self.k = k
@@ -49,7 +55,7 @@ class KMeans:
             print("Assigning Groups:")
             self.calculateGroups()
             for i in range(len(self.groups)):
-                print(str(i) + "=" + str(self.groups[i][0]))
+                print(str(i) + "=" + str(self.groups[i]))
             sse = self.calculateSSE()
             print(sse)
             if sse == lastsse:
@@ -119,7 +125,7 @@ class KMeans:
     # group sets for centroids
     def calculateGroups(self):
         for i in range(len(self.features)):
-            self.groups.append(self.labels[int(self.calculateDistanceToCentroids(self.features[i]))])
+            self.groups.append(self.calculateDistanceToCentroids(self.features[i]))
 
     # @return best centroid index
     def calculateDistanceToCentroids(self, feature):
