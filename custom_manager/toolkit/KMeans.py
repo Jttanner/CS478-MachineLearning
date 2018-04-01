@@ -36,16 +36,30 @@ class KMeans:
     def print2dList(self,list):
         printMe = "["
         for i in range(len(list)):
-            printMe += str(list[i]) + ', '
+            # if self.labelTypes[i] == self.NOMINAL:
+            #     printMe += '(nom)'
+            printMe += str(list[i]) + ', ' if str(list[i]) != "nan" else '?, '
         print(printMe + ']')
 
     def train(self):
+        print("Iteration: 1")
+        print("Caluclating Centroids")
         self.pickInitialRandomCentroids()
         self.calculateGroups()
+        currCentroid = 0
+        for centroid in self.centroids:
+            print("Centroid :" + str(currCentroid))  # + centroid)
+            self.print2dList(centroid)
+            currCentroid += 1
+        print("Assigning Groups:")
+        for i in range(len(self.groups)):
+            print(str(i) + "=" + str(self.groups[i]))
         lastsse = 0
-        iterations = 0
         converged = False
-        while not converged and iterations<1:
+        iterations = 2
+        sse = self.calculateSSE()
+        print(sse)
+        while not converged:
             print("Iteration: " + str(iterations))
             print("Caluclating Centroids")
             self.recalculateCentroids()
@@ -61,7 +75,7 @@ class KMeans:
                 print(str(i) + "=" + str(self.groups[i]))
             sse = self.calculateSSE()
             print(sse)
-            if sse == lastsse:
+            if abs(sse - lastsse) < .001:
                 converged = True
             iterations += 1
         print("SSE has converged.")
@@ -81,35 +95,65 @@ class KMeans:
 
     def recalculateCentroids(self):
         newCentroids = []
-        for i in range(len(self.centroids)):
+        for i in range(self.k):
             newCentroid = []
-            for j in range(self.k):  #number of clusters
-                totals = []
-                for k in range(len(self.groups)):
-                    newCentroid.append(0)
-                for k in range(len(self.groups)):
-                    if self.groups[k] == j:  #is the current group
-                        total = 0
-                        nominalNanCount = 0
-                        for l in range(len(self.features[k])):
-                            if self.labelTypes[l] == self.REAL:
-                                if math.isnan(self.features[k][l]):
-                                    pass
-                                else:
-                                    total += 1
-                                    newCentroid[l] += self.features[k][l]
+            for j in range(len(self.features[0])):
+                newCentroid.append(0)  #fill
+            for j in range(len(self.features[0])):  #for each column
+                nanCount = 0
+                total = 0
+                for k in range(len(self.features)):  #for each row
+                    if self.groups[k] == i:  #if its in the cluster
+                        if self.labelTypes[j] == self.REAL:
+                            total += 1
+                            if math.isnan(self.features[k][j]):
+                                nanCount += 1
                             else:
-                                if self.features[k][l] == float("nan"):
-                                    pass
-                                else:
-                                    total += 1
-                        totals.append(total)
-                        for l in range(len(self.features[k])):
-                            if self.labelTypes == self.REAL:
-                                newCentroid[l] = newCentroid[l] / totals[l] if totals[l] != 0 else float("nan")
+                                newCentroid[j] += self.features[k][j]
+                        else:
+                            total += 1
+                            if math.isnan(self.features[k][j]):
+                                nanCount += 1
                             else:
-                                newCentroid[l] = stats.mode(self.features[:,l], nan_policy='omit')[0][0] if total != 0 else float("nan")
+                                try:
+                                    newCentroid[j] = stats.mode(self.features[:,k], nan_policy='omit')[0][0]
+                                except:
+                                    newCentroid[j] = float("nan")
+                if self.labelTypes[j] == self.REAL:
+                    newCentroid[j] = newCentroid[j] / total if total != 0 else float("nan")
+                # for k in range(len(self.features[0])):
+                #     if self.labelTypes[j] == self.REAL:
+                #         newCentroid[j] = newCentroid[j] / total if total != 0 else float("nan")
             newCentroids.append(newCentroid)
+        self.centroids = newCentroids
+        # for i in range(len(self.centroids)):
+        #     newCentroid = []
+        #     for j in range(len(self.features[0])):
+        #         newCentroid.append(0)
+        #     totals = []
+        #     for j in range(len(self.groups)):
+        #         if self.groups[j] == i:  #is the current group
+        #             total = 0
+        #             for k in range(len(self.features[j])):
+        #                 if self.labelTypes[k] == self.REAL:
+        #                     if math.isnan(self.features[j][k]):
+        #                         pass
+        #                     else:
+        #                         total += 1
+        #                         newCentroid[k] += self.features[j][k]
+        #                 else:
+        #                     if self.features[j][k] == float("nan"):
+        #                         pass
+        #                     else:
+        #                         total += 1
+        #             totals.append(total)
+        #             for k in range(len(self.features[j])):
+        #                 if self.labelTypes == self.REAL:
+        #                     newCentroid[k] = newCentroid[k] / totals[k] if totals[k] != 0 else float("nan")
+        #                 else:
+        #                     newCentroid[k] = stats.mode(self.features[:,k], nan_policy='omit')[0][0] if total != 0 else float("nan")
+        #     newCentroids.append(newCentroid)
+        # self.centroids = newCentroids
 
 
     def pickInitialRandomCentroids(self):
@@ -118,6 +162,7 @@ class KMeans:
             self.centroids.append(self.features[1])
             self.centroids.append(self.features[2])
             self.centroids.append(self.features[3])
+            self.centroids.append(self.features[4])
         else:
             lastInt = -1
             for i in range(self.k):
