@@ -25,8 +25,10 @@ file_name = sys.argv[1]
 learner = ClusteringLearner()
 data = Matrix()
 data.load_arff(file_name)
+# data.normalize()
 features = Matrix(data, 0, 0, data.rows, data.cols - 1)
 labels = Matrix(data, 0, data.cols - 1, data.rows, 1)
+
 # tempFeatures = []
 # tempLabels = []
 #

@@ -32,6 +32,20 @@ class KMeans:
         self.runsWithNoMeaningfulUpdate = 0
         self.centroids = []
         self.groups = []
+        for i in range(len(self.features[0])):  #for each column
+            max = 0
+            min = math.inf
+            for j in range(len(self.features)):  #for each row:
+                if self.features[j][i] != float("nan"):
+                    if self.features[j][i] > max:
+                        max = self.features[j][i]
+                    if self.features[j][i] < min:
+                        min = self.features[j][i]
+            for j in range(len(self.features)):  #for each row:
+                if self.features[j][i] != float("nan"):
+                    self.features[j][i] = (self.features[j][i] - min )/ (max - min)
+        i = 4
+
 
     def print2dList(self,list):
         printMe = "["
