@@ -1,8 +1,12 @@
 from random import randint
 import numpy as np
+import math
 
 class KMeans:
 
+    labelTypes = [0,0,0,0,0,1,0,1,0,0,1,0,1,1,1,1,1]  #0 is real, 1 is nominal
+    REAL = 0
+    NOMINAL = 1
     centroids = None
     groups = None
     forceFirstFourInitialCentroids = True
@@ -22,6 +26,10 @@ class KMeans:
         self.centroids = []
         self.groups = []
 
+    def print2dList(self,list):
+        for i in range(len(list)):
+            print(list[i])
+
     def train(self):
         self.pickInitialRandomCentroids()
         self.calculateGroups()
@@ -32,14 +40,18 @@ class KMeans:
             print("Iteration: " + str(iterations))
             print("Caluclating Centroids")
             self.recalculateCentroids()
+            currCentroid = 0
             for centroid in self.centroids:
-                print("Centroid :" + str(iterations) + centroid)
+                print("Centroid :" + str(currCentroid))  # + centroid)
+                self.print2dList(centroid)
+                currCentroid += 1
             self.groups = []
             print("Assigning Groups:")
             self.calculateGroups()
             for i in range(len(self.groups)):
-                print(str(i) + "=" + self.groups[i])
+                print(str(i) + "=" + str(self.groups[i][0]))
             sse = self.calculateSSE()
+            print(sse)
             if sse == lastsse:
                 converged = True
             iterations += 1
@@ -51,8 +63,8 @@ class KMeans:
 
     def calculateSSE(self):
         sse = 0
-        for i in np.nditer(self.labels):
-            sse += (self.labels[self.groups[i]][0] - self.labels[i][0])**2
+        for i in range(len(self.labels)):
+            sse += (self.labels[int(self.groups[i])][0] - self.labels[i][0])**2
         return sse
             # total += 1
             # if self.labels[self.groups[i]][0] == self.labels[i][0]:
@@ -60,15 +72,30 @@ class KMeans:
 
     def recalculateCentroids(self):
         newCentroids = []
-        for i in range(len(self.groups)):
-            centroid = []
-            for j in range(len(self.groups[i])):
-                centroid.append(0)
-            centroid = np.array(centroid)
+        for i in range(len(self.centroids)):
+            newCentroid = []
+            for j in range(len(self.features[0])):
+                newCentroid.append(0)
+            newCentroid = np.array(newCentroid)
             for j in range(len(self.features)):
-                centroid = centroid + self.features[j]
-            centroid = centroid / len(self.features)
-            newCentroids.append(newCentroids)
+                for k in range(len(self.features[j])):
+                    distanceDelta = 0
+                    if self.labelTypes[k] == self.REAL:
+                        if math.isinf(self.features[j][k]) or math.isinf(self.centroids[i][k]):
+                            distanceDelta = 1
+                        else:
+                            distanceDelta = (self.features[j][k] - self.centroids[i][k]) ** 2
+                    else:
+                        if math.isinf(self.features[j][k]):
+                            distanceDelta = 1
+                        elif self.features[j][k] == self.centroids[i][k]:
+                            distanceDelta = 0
+                        else:
+                            distanceDelta = 1
+                    # newCentroid[k] = newCentroid[k] + self.features[j][k] if not math.isinf(self.features[j][k]) else 0  #TODO: don't just make infinity 0
+                    newCentroid[k] += distanceDelta
+            newCentroid = newCentroid / len(self.features)
+            newCentroids.append(newCentroid)
         self.centroids = newCentroids
 
     def pickInitialRandomCentroids(self):
@@ -91,8 +118,8 @@ class KMeans:
 
     # group sets for centroids
     def calculateGroups(self):
-        for i in np.nditer(self.features):
-            self.groups.append(self.features[self.calculateDistanceToCentroids(self.features[i])])
+        for i in range(len(self.features)):
+            self.groups.append(self.labels[int(self.calculateDistanceToCentroids(self.features[i]))])
 
     # @return best centroid index
     def calculateDistanceToCentroids(self, feature):
@@ -101,8 +128,19 @@ class KMeans:
             distance = 0
             for i in range(len(feature)):
                 distanceDelta = 0
-
-                distance += (feature[i] - centroid[i])**2
+                if self.labelTypes[i] == self.REAL:
+                    if math.isinf(feature[i]) or math.isinf(centroid[i]):
+                        distanceDelta = 1
+                    else:
+                        distanceDelta  = (feature[i] - centroid[i])**2
+                else:
+                    if math.isinf(feature[i]) or math.isinf(centroid[i]):
+                        distanceDelta = 1
+                    elif feature[i] == centroid[i]:
+                        distanceDelta = 0
+                    else:
+                        distanceDelta = 1
+                distance += distanceDelta
             distances.append(distance)
         bestIndex = 0
         for i in range(len(distances)):
