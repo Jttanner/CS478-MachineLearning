@@ -77,21 +77,22 @@ class KMeans:
             print(sse)
             if abs(sse - lastsse) < .001:
                 converged = True
+            lastsse = sse
             iterations += 1
         print("SSE has converged.")
-        # currAccuracy = self.calculateAccuracy()
-        # if abs(currAccuracy - lastAccuarcy) < .0001:
-        #     self.runsWithNoMeaningfulUpdate += 1
-
 
     def calculateSSE(self):
-        sse = 0
-        for i in range(len(self.labels)):
-            sse += (self.labels[int(self.groups[i])][0] - self.labels[i][0])**2
-        return sse
-            # total += 1
-            # if self.labels[self.groups[i]][0] == self.labels[i][0]:
-                # correct += 1
+        for i in range(self.k):  #for each centroid
+            colSSEs = []
+            for j in range(len(self.features[0])):  #for each column
+                colSSEs.append(0)
+                for k in range(len(self.features)):  #for each row
+                    colSSEs[j] += (self.features[k][j] - self.centroids[self.groups[k]][j])**2
+        total = 0
+        for sse in colSSEs:
+            total += sse
+        total = math.sqrt(total)
+        return total
 
     def recalculateCentroids(self):
         newCentroids = []
@@ -117,13 +118,6 @@ class KMeans:
                                 nanCount += 1
                             else:
                                 nominalCol.append(self.features[k][j])
-                                # total += 1
-                                # try:
-                                #
-                                #     newCentroid[j] = stats.mode(self.features[:,k], nan_policy='omit')[0][0]
-                                # except:
-                                #     # print("FAIL")
-                                #     newCentroid[j] = float("nan")
                 if self.labelTypes[j] == self.REAL:
                     newCentroid[j] = newCentroid[j] / total if total != 0 else float("nan")
                 else:
@@ -131,40 +125,8 @@ class KMeans:
                         newCentroid[j] = float("nan")
                     else:
                         newCentroid[j] = stats.mode(nominalCol, nan_policy='omit')[0][0]
-                # for k in range(len(self.features[0])):
-                #     if self.labelTypes[j] == self.REAL:
-                #         newCentroid[j] = newCentroid[j] / total if total != 0 else float("nan")
             newCentroids.append(newCentroid)
         self.centroids = newCentroids
-        # for i in range(len(self.centroids)):
-        #     newCentroid = []
-        #     for j in range(len(self.features[0])):
-        #         newCentroid.append(0)
-        #     totals = []
-        #     for j in range(len(self.groups)):
-        #         if self.groups[j] == i:  #is the current group
-        #             total = 0
-        #             for k in range(len(self.features[j])):
-        #                 if self.labelTypes[k] == self.REAL:
-        #                     if math.isnan(self.features[j][k]):
-        #                         pass
-        #                     else:
-        #                         total += 1
-        #                         newCentroid[k] += self.features[j][k]
-        #                 else:
-        #                     if self.features[j][k] == float("nan"):
-        #                         pass
-        #                     else:
-        #                         total += 1
-        #             totals.append(total)
-        #             for k in range(len(self.features[j])):
-        #                 if self.labelTypes == self.REAL:
-        #                     newCentroid[k] = newCentroid[k] / totals[k] if totals[k] != 0 else float("nan")
-        #                 else:
-        #                     newCentroid[k] = stats.mode(self.features[:,k], nan_policy='omit')[0][0] if total != 0 else float("nan")
-        #     newCentroids.append(newCentroid)
-        # self.centroids = newCentroids
-
 
     def pickInitialRandomCentroids(self):
         if self.forceFirstFourInitialCentroids:
