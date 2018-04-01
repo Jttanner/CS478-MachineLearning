@@ -36,8 +36,8 @@ class KMeans:
     def print2dList(self,list):
         printMe = "["
         for i in range(len(list)):
-            # if self.labelTypes[i] == self.NOMINAL:
-            #     printMe += '(nom)'
+            if self.labelTypes[i] == self.NOMINAL:
+                printMe += '(nom)'
             printMe += str(list[i]) + ', ' if str(list[i]) != "nan" else '?, '
         print(printMe + ']')
 
@@ -102,25 +102,35 @@ class KMeans:
             for j in range(len(self.features[0])):  #for each column
                 nanCount = 0
                 total = 0
+                nominalCol = []
                 for k in range(len(self.features)):  #for each row
                     if self.groups[k] == i:  #if its in the cluster
                         if self.labelTypes[j] == self.REAL:
-                            total += 1
                             if math.isnan(self.features[k][j]):
                                 nanCount += 1
                             else:
+                                total += 1
                                 newCentroid[j] += self.features[k][j]
                         else:
                             total += 1
                             if math.isnan(self.features[k][j]):
                                 nanCount += 1
                             else:
-                                try:
-                                    newCentroid[j] = stats.mode(self.features[:,k], nan_policy='omit')[0][0]
-                                except:
-                                    newCentroid[j] = float("nan")
+                                nominalCol.append(self.features[k][j])
+                                # total += 1
+                                # try:
+                                #
+                                #     newCentroid[j] = stats.mode(self.features[:,k], nan_policy='omit')[0][0]
+                                # except:
+                                #     # print("FAIL")
+                                #     newCentroid[j] = float("nan")
                 if self.labelTypes[j] == self.REAL:
                     newCentroid[j] = newCentroid[j] / total if total != 0 else float("nan")
+                else:
+                    if total == nanCount:
+                        newCentroid[j] = float("nan")
+                    else:
+                        newCentroid[j] = stats.mode(nominalCol, nan_policy='omit')[0][0]
                 # for k in range(len(self.features[0])):
                 #     if self.labelTypes[j] == self.REAL:
                 #         newCentroid[j] = newCentroid[j] / total if total != 0 else float("nan")
