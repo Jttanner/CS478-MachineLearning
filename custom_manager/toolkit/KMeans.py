@@ -1,6 +1,7 @@
 from random import randint
 import numpy as np
 import math
+from scipy import stats
 
 class KMeans:
 
@@ -82,25 +83,17 @@ class KMeans:
             newCentroid = []
             for j in range(len(self.features[0])):
                 newCentroid.append(0)
-            newCentroid = np.array(newCentroid)
-            for j in range(len(self.features)):
-                for k in range(len(self.features[j])):
-                    distanceDelta = 0
-                    if self.labelTypes[k] == self.REAL:
-                        if math.isinf(self.features[j][k]) or math.isinf(self.centroids[i][k]):
-                            distanceDelta = 1
-                        else:
-                            distanceDelta = (self.features[j][k] - self.centroids[i][k]) ** 2
-                    else:
-                        if math.isinf(self.features[j][k]):
-                            distanceDelta = 1
-                        elif self.features[j][k] == self.centroids[i][k]:
-                            distanceDelta = 0
-                        else:
-                            distanceDelta = 1
-                    # newCentroid[k] = newCentroid[k] + self.features[j][k] if not math.isinf(self.features[j][k]) else 0  #TODO: don't just make infinity 0
-                    newCentroid[k] += distanceDelta
-            newCentroid = newCentroid / len(self.features)
+            for j in range(len(self.features[0])):
+                if self.labelTypes[j] == self.REAL:
+                    for k in range(len(self.features)):
+                        newCentroid[j] += self.features[k][j]
+                    newCentroid[j] = newCentroid[j] / len(self.features)
+                else:
+                    columnInfo = []
+                    for k in range(len(self.features)):
+                        columnInfo.append(self.features[k][j])
+                    columnInfo = np.array(columnInfo)
+                    newCentroid[j] = stats.mode(columnInfo)[0][0]
             newCentroids.append(newCentroid)
         self.centroids = newCentroids
 
@@ -140,6 +133,8 @@ class KMeans:
                     else:
                         distanceDelta  = (feature[i] - centroid[i])**2
                 else:
+                    print(feature[i])
+                    print(centroid[i])
                     if math.isinf(feature[i]) or math.isinf(centroid[i]):
                         distanceDelta = 1
                     elif feature[i] == centroid[i]:
