@@ -34,8 +34,10 @@ class KMeans:
         self.groups = []
 
     def print2dList(self,list):
+        printMe = "["
         for i in range(len(list)):
-            print(list[i])
+            printMe += str(list[i]) + ', '
+        print(printMe + ']')
 
     def train(self):
         self.pickInitialRandomCentroids()
@@ -43,7 +45,7 @@ class KMeans:
         lastsse = 0
         iterations = 0
         converged = False
-        while not converged:
+        while not converged and iterations<1:
             print("Iteration: " + str(iterations))
             print("Caluclating Centroids")
             self.recalculateCentroids()
@@ -81,21 +83,34 @@ class KMeans:
         newCentroids = []
         for i in range(len(self.centroids)):
             newCentroid = []
-            for j in range(len(self.features[0])):
-                newCentroid.append(0)
-            for j in range(len(self.features[0])):
-                if self.labelTypes[j] == self.REAL:
-                    for k in range(len(self.features)):
-                        newCentroid[j] += self.features[k][j]
-                    newCentroid[j] = newCentroid[j] / len(self.features)
-                else:
-                    columnInfo = []
-                    for k in range(len(self.features)):
-                        columnInfo.append(self.features[k][j])
-                    columnInfo = np.array(columnInfo)
-                    newCentroid[j] = stats.mode(columnInfo)[0][0]
+            for j in range(self.k):  #number of clusters
+                totals = []
+                for k in range(len(self.groups)):
+                    newCentroid.append(0)
+                for k in range(len(self.groups)):
+                    if self.groups[k] == j:  #is the current group
+                        total = 0
+                        nominalNanCount = 0
+                        for l in range(len(self.features[k])):
+                            if self.labelTypes[l] == self.REAL:
+                                if math.isnan(self.features[k][l]):
+                                    pass
+                                else:
+                                    total += 1
+                                    newCentroid[l] += self.features[k][l]
+                            else:
+                                if self.features[k][l] == float("nan"):
+                                    pass
+                                else:
+                                    total += 1
+                        totals.append(total)
+                        for l in range(len(self.features[k])):
+                            if self.labelTypes == self.REAL:
+                                newCentroid[l] = newCentroid[l] / totals[l] if totals[l] != 0 else float("nan")
+                            else:
+                                newCentroid[l] = stats.mode(self.features[:,l], nan_policy='omit')[0][0] if total != 0 else float("nan")
             newCentroids.append(newCentroid)
-        self.centroids = newCentroids
+
 
     def pickInitialRandomCentroids(self):
         if self.forceFirstFourInitialCentroids:
@@ -119,6 +134,7 @@ class KMeans:
     def calculateGroups(self):
         for i in range(len(self.features)):
             self.groups.append(self.calculateDistanceToCentroids(self.features[i]))
+        i = 4
 
     # @return best centroid index
     def calculateDistanceToCentroids(self, feature):
@@ -128,14 +144,12 @@ class KMeans:
             for i in range(len(feature)):
                 distanceDelta = 0
                 if self.labelTypes[i] == self.REAL:
-                    if math.isinf(feature[i]) or math.isinf(centroid[i]):
+                    if math.isnan(feature[i]) or math.isnan(centroid[i]):
                         distanceDelta = 1
                     else:
                         distanceDelta  = (feature[i] - centroid[i])**2
                 else:
-                    print(feature[i])
-                    print(centroid[i])
-                    if math.isinf(feature[i]) or math.isinf(centroid[i]):
+                    if math.isnan(feature[i]) or math.isnan(centroid[i]):
                         distanceDelta = 1
                     elif feature[i] == centroid[i]:
                         distanceDelta = 0

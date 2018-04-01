@@ -40,8 +40,8 @@ class Matrix:
     str_to_enum = []       # array of dictionaries
     enum_to_str = []       # array of dictionaries
     dataset_name = "Untitled"
-    MISSING = float("infinity")
-
+    # MISSING = float("infinity")
+    MISSING = float("nan")
     def __eq__(self, other):
         isEqual = True
         for i in range(0, len(self.data)):
