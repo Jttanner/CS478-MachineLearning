@@ -51,7 +51,7 @@ class KMeans:
                         if self.features[j][i] < min:
                             min = self.features[j][i]
                 for j in range(len(self.features)):  #for each row:
-                    if self.features[j][i] != float("nan"):
+                    if self.features[j][i] != float("nan") and self.labelTypes[i] != self.NOMINAL:
                         self.features[j][i] = (self.features[j][i] - min )/ (max - min)
 
 
