@@ -4,13 +4,21 @@ import math
 from scipy import stats
 
 class KMeans:
+    # labelTypes for Names
+    # labelTypes = [0,0,0,1,1,1,0,1,1,0,0,0,0,0]
 
-    labelTypes = [0,0,0,0,1,0,1,0,0,1,0,1,1,1,1,1]  #0 is real, 1 is nominal
+    # labelTypes for Labor
+    # labelTypes = [0,0,0,0,1,0,1,0,0,1,0,1,1,1,1,1]  #0 is real, 1 is nominal
+
+    # labelTypes for Sponge
+    labelTypes = [1,1,1,0,1,1,0,0,1]
+
     REAL = 0
     NOMINAL = 1
     centroids = None
     groups = None
     forceFirstFourInitialCentroids = True
+    normalize = False
 
     def __init__(self, features, labels, k):
         self.features = []
@@ -19,8 +27,8 @@ class KMeans:
             feature = []
             label = []
             for j in range(len(features.row(i))):
-                if j != 0:
-                    feature.append(features.row(i)[j])
+                # if j != 0:
+                feature.append(features.row(i)[j])
             label.append(labels.row(i))
             self.features.append(feature)
             self.labels.append(label)
@@ -32,19 +40,19 @@ class KMeans:
         self.runsWithNoMeaningfulUpdate = 0
         self.centroids = []
         self.groups = []
-        for i in range(len(self.features[0])):  #for each column
-            max = 0
-            min = math.inf
-            for j in range(len(self.features)):  #for each row:
-                if self.features[j][i] != float("nan"):
-                    if self.features[j][i] > max:
-                        max = self.features[j][i]
-                    if self.features[j][i] < min:
-                        min = self.features[j][i]
-            for j in range(len(self.features)):  #for each row:
-                if self.features[j][i] != float("nan"):
-                    self.features[j][i] = (self.features[j][i] - min )/ (max - min)
-        i = 4
+        if self.normalize:
+            for i in range(len(self.features[0])):  #for each column
+                max = 0
+                min = math.inf
+                for j in range(len(self.features)):  #for each row:
+                    if self.features[j][i] != float("nan"):
+                        if self.features[j][i] > max:
+                            max = self.features[j][i]
+                        if self.features[j][i] < min:
+                            min = self.features[j][i]
+                for j in range(len(self.features)):  #for each row:
+                    if self.features[j][i] != float("nan"):
+                        self.features[j][i] = (self.features[j][i] - min )/ (max - min)
 
 
     def print2dList(self,list):
@@ -56,15 +64,21 @@ class KMeans:
         print(printMe + ']')
 
     def train(self):
+        print("number of clusters: " + str(self.k))
         print("Iteration: 1")
         print("Caluclating Centroids")
         self.pickInitialRandomCentroids()
         self.calculateGroups()
         currCentroid = 0
-        for centroid in self.centroids:
+        for i, centroid in zip(range(self.k),self.centroids):
             print("Centroid :" + str(currCentroid))  # + centroid)
             self.print2dList(centroid)
             currCentroid += 1
+            instanceCount = 0
+            for j in range(len(self.groups)):
+                if self.groups[j] == i:
+                    instanceCount +=1
+            print("Instances in Cluster " + str(i) + ": " + str(instanceCount))
         print("Assigning Groups:")
         linePrintCount = 0
         printMe = ""
@@ -74,7 +88,8 @@ class KMeans:
                 printMe += str(i) + "=" + str(self.groups[i])
                 printMe += " "
             else:
-                print(printMe + str(i) + "=" + str(self.groups[i]))
+                printMe += str(i) + "=" + str(self.groups[i])
+                print(printMe)
                 printMe = ""
                 linePrintCount = 0
         # for i in range(len(self.groups)):
@@ -83,16 +98,23 @@ class KMeans:
         converged = False
         iterations = 2
         sse = self.calculateSSE()
-        print(sse)
+        self.calculateSingleClusterSSE()
+        print("total sse: " + str(sse))
         while not converged:
+            print("number of clusters: " + str(self.k))
             print("Iteration: " + str(iterations))
             print("Caluclating Centroids")
             self.recalculateCentroids()
             currCentroid = 0
-            for centroid in self.centroids:
+            for i, centroid in zip(range(self.k),self.centroids):
                 print("Centroid :" + str(currCentroid))  # + centroid)
                 self.print2dList(centroid)
                 currCentroid += 1
+                instanceCount = 0
+                for j in range(len(self.groups)):
+                    if self.groups[j] == i:
+                        instanceCount += 1
+                print("Instances tied to centroid " + str(i) + ": " + str(instanceCount))
             self.groups = []
             print("Assigning Groups:")
             self.calculateGroups()
@@ -104,11 +126,13 @@ class KMeans:
                     printMe += str(i) + "=" + str(self.groups[i])
                     printMe += " "
                 else:
+                    printMe += str(i) + "=" + str(self.groups[i])
                     print(printMe)
                     printMe = ""
                     linePrintCount = 0
             sse = self.calculateSSE()
-            print("sse: " + str(sse))
+            self.calculateSingleClusterSSE()
+            print("total sse: " + str(sse))
             if abs(sse - lastsse) < .01:
                 converged = True
             lastsse = sse
@@ -116,28 +140,52 @@ class KMeans:
         print("SSE has converged.")
 
     def calculateSSE(self):
+        # for i in range(self.k):  #for each centroid
+        colSSEs = []
+        for j in range(len(self.features[0])):  #for each column
+            colSSEs.append(0)
+            for k in range(len(self.features)):  #for each row
+                if self.labelTypes[j] == self.REAL:
+                    if math.isnan(self.features[k][j]) or math.isnan(self.centroids[self.groups[k]][j]):
+                        colSSEs[j] += 1
+                    else:
+                        colSSEs[j] += (self.features[k][j] - self.centroids[self.groups[k]][j])**2
+                else:
+                    if math.isnan(self.features[k][j]) or math.isnan(self.centroids[self.groups[k]][j]):
+                        colSSEs[j] += 1
+                    elif self.features[k][j] == self.centroids[self.groups[k]][j]:
+                        colSSEs[j] += 0
+                    else:
+                        colSSEs[j] += 1
+        total = 0
+        for sse in colSSEs:
+            total += sse if not math.isinf(sse) else 0
+        # total = math.sqrt(total)
+        return total
+
+    def calculateSingleClusterSSE(self):
         for i in range(self.k):  #for each centroid
             colSSEs = []
             for j in range(len(self.features[0])):  #for each column
                 colSSEs.append(0)
                 for k in range(len(self.features)):  #for each row
-                    if self.labelTypes[j] == self.REAL:
-                        if math.isnan(self.features[k][j]) or math.isnan(self.centroids[self.groups[k]][j]):
-                            colSSEs[j] += 1
+                    if self.groups[k] == i:
+                        if self.labelTypes[j] == self.REAL:
+                            if math.isnan(self.features[k][j]) or math.isnan(self.centroids[self.groups[k]][j]):
+                                colSSEs[j] += 1
+                            else:
+                                colSSEs[j] += (self.features[k][j] - self.centroids[self.groups[k]][j])**2
                         else:
-                            colSSEs[j] += (self.features[k][j] - self.centroids[self.groups[k]][j])**2
-                    else:
-                        if math.isnan(self.features[k][j]) or math.isnan(self.centroids[self.groups[k]][j]):
-                            colSSEs[j] += 1
-                        elif self.features[k][j] == self.centroids[self.groups[k]][j]:
-                            colSSEs[j] += 0
-                        else:
-                            colSSEs[j] += 1
-        total = 0
-        for sse in colSSEs:
-            total += sse
-        # total = math.sqrt(total)
-        return total
+                            if math.isnan(self.features[k][j]) or math.isnan(self.centroids[self.groups[k]][j]):
+                                colSSEs[j] += 1
+                            elif self.features[k][j] == self.centroids[self.groups[k]][j]:
+                                colSSEs[j] += 0
+                            else:
+                                colSSEs[j] += 1
+            total = 0
+            for sse in colSSEs:
+                total += sse if not math.isinf(sse) else 0
+            print("sse for cluster " + str(i) + ": " + str(total))
 
     def recalculateCentroids(self):
         newCentroids = []
@@ -183,9 +231,9 @@ class KMeans:
         else:
             lastInt = -1
             for i in range(self.k):
-                randomInitialCentroidIndex = randint()
+                randomInitialCentroidIndex = randint(0,len(self.features))
                 while randomInitialCentroidIndex == lastInt:
-                    randomInitialCentroidIndex = randint()
+                    randomInitialCentroidIndex = randint(0,(len(self.features)))
                 lastInt = randomInitialCentroidIndex
                 centroid = []
                 for j in range(len(self.features[i])):
@@ -209,6 +257,8 @@ class KMeans:
                     if math.isnan(feature[i]) or math.isnan(centroid[i]):
                         distanceDelta = 1
                     else:
+                        if math.isinf((feature[i] - centroid[i])**2):
+                            test = 4
                         distanceDelta  = (feature[i] - centroid[i])**2
                 else:
                     if math.isnan(feature[i]) or math.isnan(centroid[i]):

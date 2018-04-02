@@ -8,7 +8,7 @@ class ClusteringLearner(SupervisedLearner):
     """
     types = ["kMeans", "HAC"]
     """
-    k = 5
+    k = 4
 
     def __init__(self):
         pass
@@ -26,8 +26,9 @@ learner = ClusteringLearner()
 data = Matrix()
 data.load_arff(file_name)
 # data.normalize()
-features = Matrix(data, 0, 0, data.rows, data.cols - 1)
+# features = Matrix(data, 0, 0, data.rows, data.cols - 1)
 labels = Matrix(data, 0, data.cols - 1, data.rows, 1)
+features = Matrix(data, 0, 0, data.rows, data.cols)
 
 # tempFeatures = []
 # tempLabels = []
@@ -43,3 +44,9 @@ labels = Matrix(data, 0, data.cols - 1, data.rows, 1)
 # features = np.array(tempFeatures)
 # labels = np.array(tempLabels)
 learner.train(features, labels)
+# labelsForEachGroup = []
+# for i in range(learner.k):
+#     labelsForEachGroup.append([0,0,0,0])
+# for i in range(len(learner.kMeans.groups)):
+#     labelsForEachGroup[int(learner.kMeans.groups[i])][int(learner.kMeans.labels[i][0])] += 1
+# i = 4
