@@ -11,7 +11,7 @@ class KMeans:
     # labelTypes = [0,0,0,1,1,1,0,1,1,0,0,0,0,0]
 
     # labelTypes for Labor
-    # labelTypes = [0,0,0,0,1,0,1,0,0,1,0,1,1,1,1,1]  #0 is real, 1 is nominal
+    labelTypes = [0,0,0,0,1,0,1,0,0,1,0,1,1,1,1,1]  #0 is real, 1 is nominal
 
     # labelTypes for Sponge
     # labelTypes = [1,1,1,0,1,1,0,0,1]
@@ -20,7 +20,7 @@ class KMeans:
     # labelTypes = [0,0,0,0,1]
 
     # labelTypes for abalone
-    labelTypes = [1, 0, 0, 0, 0, 0, 0, 0, 0]
+    # labelTypes = [1, 0, 0, 0, 0, 0, 0, 0, 0]
 
     REAL = 0
     NOMINAL = 1
@@ -37,8 +37,8 @@ class KMeans:
             feature = []
             label = []
             for j in range(len(features.row(i))):
-                # if j != 0:
-                feature.append(features.row(i)[j])
+                if j != 0:
+                    feature.append(features.row(i)[j])
             label.append(labels.row(i))
             self.features.append(feature)
             self.labels.append(label)
@@ -148,7 +148,7 @@ class KMeans:
             lastsse = sse
             iterations += 1
         print("SSE has converged.")
-        # self.calculateSilhouette()
+        self.calculateSilhouette()
         for i in range(self.k):
             currFeatures = []
             currLabels = []
@@ -157,16 +157,17 @@ class KMeans:
                     currFeatures.append(self.features[j])
                     currLabels.append(self.labels[j][0])
             knnLearner = InstanceBasedLearner()
-            knnLearner.train(currFeatures[:int(len(currFeatures)*.8)], currLabels[:int(len(currFeatures)*.8)])
+            knnLearner.train(currFeatures, currLabels)
             correct = 0
             total = 0
-            for j in range(int(len(currFeatures)*.8),len(currFeatures)):
+            for j in range((len(currFeatures))):
                 prediction = []
                 knnLearner.predict(currFeatures[j], prediction)
                 total += 1
                 if prediction[0] == currLabels[j]:
                     correct += 1
-            print("Accuracy using KNN for cluster " + str(i) + ": " + str(correct/total))
+            print("Accuracy using KNN for cluster " + str(i) + ": " + str(correct/total if total !=0 else 0))
+
 
 
 
