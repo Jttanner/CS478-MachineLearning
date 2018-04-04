@@ -4,6 +4,7 @@ import numpy as np
 import math
 from scipy import stats
 import time
+from KnnLearner import InstanceBasedLearner
 
 class KMeans:
     # labelTypes for Names
@@ -147,7 +148,27 @@ class KMeans:
             lastsse = sse
             iterations += 1
         print("SSE has converged.")
-        self.calculateSilhouette()
+        # self.calculateSilhouette()
+        for i in range(self.k):
+            currFeatures = []
+            currLabels = []
+            for j in range(len(self.features)):
+                if self.groups[j] == i:
+                    currFeatures.append(self.features[j])
+                    currLabels.append(self.labels[j][0])
+            knnLearner = InstanceBasedLearner()
+            knnLearner.train(currFeatures[:int(len(currFeatures)*.8)], currLabels[:int(len(currFeatures)*.8)])
+            correct = 0
+            total = 0
+            for j in range(int(len(currFeatures)*.8),len(currFeatures)):
+                prediction = []
+                knnLearner.predict(currFeatures[j], prediction)
+                total += 1
+                if prediction[0] == currLabels[j]:
+                    correct += 1
+            print("Accuracy using KNN for cluster " + str(i) + ": " + str(correct/total))
+
+
 
     def calculateSSE(self):
         # for i in range(self.k):  #for each centroid
@@ -278,7 +299,7 @@ class KMeans:
                     else:
                         distanceDelta = 1
                 distance += distanceDelta
-            distances.append(math.sqrt(distance))
+            distances.append((distance))
         bestIndex = 0
         for i in range(len(distances)):
             if distances[i] < distances[bestIndex]:
@@ -295,23 +316,21 @@ class KMeans:
                 correct += 1
         return correct / total
 
+
     def calculateSilhouette(self):
         clusterSilhouetteScores = []
-        for i in range(self.k):  #for each cluster
+        for i in range(self.k):
             aVector = []
             bVector = []
-            silhouetteScores = []
-            total = 0
+            instanceScores = []
+            aDistances = []
+            bDistances = [[],[],[],[],[],[],[]]
             for j in range(len(self.groups)):  #for each instance
-                total += 1
-                distances = []
-                allDistances = []
                 for k in range(len(self.features)):  #for each row
                     distance = 0
                     for l in range(len(self.features[0])):  #for each column
-                        distanceDelta = 0
                         if j != k:
-                            if self.labelTypes[i] == self.REAL:
+                            if self.labelTypes[l] == self.REAL:
                                 if math.isnan(self.features[k][l]) or math.isnan(self.features[j][l]):
                                     distanceDelta = 1
                                 else:
@@ -324,22 +343,76 @@ class KMeans:
                                 else:
                                     distanceDelta = 1
                             distance += distanceDelta
+                    if self.groups[k] == self.groups[j] and j!=k and self.groups[j] == i:
+                        aDistances.append(distance)
+                    elif j!=k and self.groups[j] == i:
+                        bDistances[self.groups[k]].append(distance)
+                aEntry = np.sum(aDistances)/(len(aDistances) - 1) if aDistances != [] else 0
+                bAverages = []
+                for currDistance in bDistances:
+                    if currDistance != []:
+                        bAverages.append(np.mean(currDistance))
+                aVector.append(aEntry)
+                bVector.append(np.min(bAverages) if bAverages != [] else 0)
+                for k in range(len(aVector)):
+                    instanceScores.append((bVector[k] - aVector[k])/max(aVector[k],bVector[k]) if max(aVector[k],bVector[k]) != 0 else 0)
+            clusterSilhouetteScores.append(np.mean(instanceScores))
+        for score, j in zip(clusterSilhouetteScores, range(len(clusterSilhouetteScores))):
+            print("Score for Cluster " + str(j) + ": " + str(score))
+        print("Total Score: " +str(np.mean(clusterSilhouetteScores)))
+
+    def old_calculateSilhouette(self):
+        clusterSilhouetteScores = []
+        for i in range(self.k):  #for each cluster
+            aVector = []
+            bVector = []
+            silhouetteScores = []
+            total = 0
+            otherTotal = 0
+            for j in range(len(self.groups)):  #for each instance
+                distances = []
+                # otherDistances = []
+                otherClustersDistances = [[],[],[],[],[],[],[]]
+                for k in range(len(self.features[0])):  #for each row
+                    distance = 0
+                    for l in range(len(self.features)):  #for each column
+                        distanceDelta = 0
+                        if j != k:
+                            if self.labelTypes[i] == self.REAL:
+                                if math.isnan(self.features[l][k]) or math.isnan(self.features[j][k]):
+                                    distanceDelta = 1
+                                else:
+                                    distanceDelta = (self.features[l][k] - self.features[j][k])**2
+                            else:
+                                if math.isnan(self.features[l][k]) or math.isnan(self.features[j][k]):
+                                    distanceDelta = 1
+                                elif self.features[l][k] == self.features[j][k]:
+                                    distanceDelta = 0
+                                else:
+                                    distanceDelta = 1
+                            distance += distanceDelta
                     if self.groups[k] == i and j!=k:
-                        distances.append(math.sqrt(distance))
+                        total += 1
+                        distances.append((distance))
                     elif j!=k:
-                        allDistances.append(math.sqrt(distance))
+                        otherTotal += 1
+                        # otherDistances.append(math.sqrt(distance))
+                        otherClustersDistances[self.groups[k]].append((distance))
                 distances = np.array(distances)
-                allDistances = np.array(allDistances)
-                aEntry = np.sum(distances)/total
-                try:
-                    bEntry = np.min(allDistances)
-                except:
-                    bEntry = 0
+                # otherDistances = np.array(otherDistances)
+                aEntry = np.sum(distances)/len(distances) #if len(distances) != 0 else 0
+                otherDistanceAverages = []
+                for others in otherClustersDistances:
+                    if others != []:
+                        otherDistanceAverages.append(np.sum(others)/len(others))
+                bEntry = np.min(otherDistanceAverages)
+                # bEntry = np.min(otherDistances)
                 aVector.append(aEntry)
                 bVector.append(bEntry)
             for j in range(len(aVector)):
-                silhouetteScores.append((bVector[j] - aVector[j])/max(bVector[j],aVector[j]))
+                silhouetteScores.append((bVector[j] - aVector[j])/max(aVector[j],bVector[j]))
             silhouetteScores = np.array(silhouetteScores)
             clusterSilhouetteScores.append(np.mean(silhouetteScores))
         for score, i in zip(clusterSilhouetteScores, range(len(clusterSilhouetteScores))):
             print("Score for Cluster " + str(i) + ": " + str(score))
+        print("Total Score: " +str(np.mean(clusterSilhouetteScores)))

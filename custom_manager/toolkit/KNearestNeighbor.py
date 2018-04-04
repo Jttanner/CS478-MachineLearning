@@ -23,10 +23,16 @@ class KNearestNeighbor:
         self.k = k
         self.features = []
         self.labels = []
-        for i in range(features.rows):
-            if i != 0:
-                self.features.append(features.row(i))
-                self.labels.append(labels.row(i)[0])
+
+        self.features = features
+        self.labels = labels
+
+        # if using matrix class
+        # for i in range(features.rows):
+        #     if i != 0:
+        #         self.features.append(features.row(i))
+        #         self.labels.append(labels.row(i)[0])
+
         featureMaxes = []
         featureMins = []
         # for i in range(features.cols):  #normalize
@@ -42,8 +48,10 @@ class KNearestNeighbor:
         # for i in range(len(self.features)):
         #     for j in range(len(self.features[i])):
         #         self.features[i][j] = (self.features[i][j] - featureMins[j])/(featureMaxes[j] - featureMins[j])
-        self.features = np.array(self.features)
-        self.labels = np.array(self.labels)
+
+        # if using toolkit
+        # self.features = np.array(self.features)
+        # self.labels = np.array(self.labels)
         self.distancesInOrder = []
         self.distances = []
         self.currRowNumber = 0
@@ -137,13 +145,13 @@ class KNearestNeighbor:
         else:
             if self.k == 1:
                 return votes[0]
-            labelCounts = [0,0]
-            for x in np.nditer(votes):
-                labelCounts[int(x)] += self.weights[int(x)]
-            if labelCounts[0] > labelCounts[1]:
-                return 0
-            else:
-                return 1
-            # mode = stats.mode(votes)[0][0]
-            # return mode
+            # labelCounts = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            # for x in np.nditer(votes):
+            #     labelCounts[int(x)] += self.weights[int(x)]
+            # if labelCounts[0] > labelCounts[1]:
+            #     return 0
+            # else:
+            #     return 1
+            mode = stats.mode(votes)[0][0]
+            return mode
 

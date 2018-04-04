@@ -68,8 +68,7 @@ class MLSystemManager:
             "perceptron": PerceptronLearner(),
             "neuralnet": BackpropagationLearner(),
             "decisiontree": DecisionTreeLearner(),
-            "knn": InstanceBasedLearner(),
-            "clustering": ClusteringLearner()
+            "knn": InstanceBasedLearner()
         }
         if model in modelmap:
             return modelmap[model]

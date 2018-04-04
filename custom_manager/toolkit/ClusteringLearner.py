@@ -8,7 +8,7 @@ class ClusteringLearner(SupervisedLearner):
     """
     types = ["kMeans", "HAC"]
     """
-    k = 4
+    k = 7
 
     def __init__(self):
         pass
